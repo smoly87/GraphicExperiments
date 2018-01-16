@@ -68,15 +68,16 @@ public class CompShaderFiction extends Quad{
           gl.glBindBufferBase(gl.GL_SHADER_STORAGE_BUFFER, 4,buffers.get(BUFFER_VERTEX));
           
          gl.glDispatchCompute(  WORK_GR, 1, 1); 
-         gl.glMemoryBarrier( gl.GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT  ); //GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT
+         gl.glMemoryBarrier( gl.GL_BUFFER_UPDATE_BARRIER_BIT  ); //GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT GL_BUFFER_UPDATE_BARRIER_BIT
          
          //gl.glBindBufferBase(gl.GL_SHADER_STORAGE_BUFFER, 1,buffersCompget(BUF_1));
-         gl.glBindBuffer( gl.GL_SHADER_STORAGE_BUFFER,buffersComp.get(BUF_2) );
+         gl.glBindBuffer( gl.GL_SHADER_STORAGE_BUFFER,buffersComp.get(BUF_3) );
          
          ByteBuffer buf = gl.glMapBuffer(gl.GL_SHADER_STORAGE_BUFFER, gl.GL_READ_ONLY );
         /*ByteBuffer buf = null;
         gl.glBufferData(gl.GL_SHADER_STORAGE_BUFFER,  6*4, buf, gl.GL_READ_ONLY);*/
-         System.out.println(buf.getFloat(5)); 
+         FloatBuffer fb =  buf.asFloatBuffer();
+         System.out.println(fb.get(1)); 
          gl.glUnmapBuffer( gl.GL_SHADER_STORAGE_BUFFER );
          //
         
