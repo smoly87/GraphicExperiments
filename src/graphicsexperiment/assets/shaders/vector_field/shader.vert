@@ -7,8 +7,8 @@ out vec4 fragColor;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
-
+uniform mat4 MVP;
 void main(){
-    gl_Position =  projectionMatrix * viewMatrix * modelMatrix * position;
+    gl_Position = MVP* position;
 	fragColor = vec4(0.5, 0.5, 0.2, 1.0);//vertexColor;
 }

@@ -47,8 +47,8 @@ public class GraphicsExperiment  implements GLEventListener {
 
     
 
-    private int imageWidth = 1024;
-    private int imageHeight = 768;
+    public static int imageWidth = 1024;
+    public static int imageHeight = 768;
     private GLCanvas canvas;
        
     protected FPSAnimator animator;

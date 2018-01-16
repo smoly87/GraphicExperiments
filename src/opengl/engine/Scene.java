@@ -170,21 +170,22 @@ public class Scene implements KeyListener{
          for (Map.Entry<String, GLSLProgramObject> entry : sceneObj.getShadersPrograms().entrySet()) {
            String key = entry.getKey();
            GLSLProgramObject programObject = entry.getValue();
-
-           programObject.bind(gl);
-           sceneObj.setGlobalMatricies(programObject, projectionMatrix, viewMatrix);
-           sceneObj.setMaterialPropsToShader(programObject);
-           sceneObj.setBodyPropsToShader(programObject);
+           execObjShaderProg(gl, sceneObj, key, programObject);
            
-          
-          // programObject.setUniform(gl, "modelMatrix", modelMatrix);
-           
-           
-           setCommonVarsToShaderProgram(gl, programObject);
-           sceneObj.display(gl, programObject, key);
-           programObject.unbind(gl);
          }
     }
+    
+    protected void execObjShaderProg(GL4 gl, SceneObject sceneObj, String progName, GLSLProgramObject programObject){
+        programObject.bind(gl);
+        sceneObj.setGlobalMatricies(programObject, projectionMatrix, viewMatrix);
+        sceneObj.setMaterialPropsToShader(programObject);
+        sceneObj.setBodyPropsToShader(programObject);
+        // programObject.setUniform(gl, "modelMatrix", modelMatrix);
+        setCommonVarsToShaderProgram(gl, programObject);
+        sceneObj.display(gl, programObject, progName);
+        programObject.unbind(gl);
+    }
+    
     @Override
     public void keyPressed(KeyEvent e) {
         /*float factor;

@@ -16,6 +16,7 @@ import math.linearAlgebra.Vector3;
 import math.sceneCalculations.SceneCalculations;
 import opengl.engine.GLSLProgramObject;
 import opengl.engine.SceneObject;
+import opengl.scenes.objects.CompShaderFiction;
 import opengl.scenes.objects.Cube;
 import opengl.scenes.objects.Cylinder;
 import opengl.scenes.objects.Grid;
@@ -125,6 +126,24 @@ public class TestScene extends Scene{
            sceneObjects.put("cube", plane);
         
      }
+      protected void  loadQuad(){
+           SceneObject plane;
+           plane = new Quad(this.gl);
+           plane.setTextureFile("uv_checker large.png");
+           //plane.setModelFile("floor.obj");
+           /*  try{
+               plane.addShaderProgram(plane.getShadersFilePath() + "normalVisualiser/", true, "NormVisualiser");
+           } catch(LoadResourseException e){
+               System.err.println("Load normal visualiser error");
+               System.err.println(e.getMessage());
+           }*/
+           plane.init();
+        //  plane.bodyScale(0.5f);
+          // plane.bodyTranlate(lightPosition);
+          // plane.bodyRotateX(-(float)Math.PI/2 );
+           sceneObjects.put("cube", plane);
+        
+     }
       protected void  loadSkybox(){
            
            SceneObject skybox = new Skybox(this.gl);
@@ -140,7 +159,7 @@ public class TestScene extends Scene{
      }
      
      protected void loadGrid(){
-         Grid item = new Grid(gl, 1);
+         /*Grid item = new Grid(gl, 1);
          item.setTextureFile("uv_checker large.png");
          item.init();   
          
@@ -149,13 +168,18 @@ public class TestScene extends Scene{
          Mesh mesh = item.getMesh();
          VectorField vecField = new VectorField(gl);
          
-         //vecField.addVector(new Vector3(1, 0, 2), new Vector3(0, 1, 0), new Vector3(0.5f, 0.5f, 0.5f));
+         vecField.addVector(new Vector3(1, 0, 2), new Vector3(0, 1, 0), new Vector3(0.5f, 0.5f, 0.5f));
          
          vecField.setVertexes(mesh.getVertexesCoords());
          vecField.setVertexData(mesh.getNormalsCoords());//getNormalsCoords*/
-         vecField.init();
+         //vecField.init();
          
-         sceneObjects.put("vec_field", vecField);
+        // sceneObjects.put("vec_field", vecField);
+         loadQuad();
+         CompShaderFiction shad = new CompShaderFiction(gl);
+         shad.setTextureFile("uv_checker large.png");
+         shad.init();
+         sceneObjects.put("comp_shader", shad);
          
      }
       
@@ -174,7 +198,7 @@ public class TestScene extends Scene{
         // this.loadCube();
              //    System.out.println(cameraRot);
        //this.loadCube();
-       //this.loadSkybox();
+      // this.loadSkybox();
         // loadHeadModel2();
        // this.loadPlane();
          
