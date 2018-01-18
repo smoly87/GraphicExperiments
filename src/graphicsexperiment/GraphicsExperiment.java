@@ -112,7 +112,11 @@ public class GraphicsExperiment  implements GLEventListener {
         scene.setScreenWidth(imageWidth);
         scene.setScreenHeight(imageHeight);
         scene.setFieldOfView(30.0f);
-        scene.init();
+        try {
+            scene.init();
+        } catch (LoadResourseException ex) {
+            Logger.getLogger(GraphicsExperiment.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         canvas.addKeyListener(scene);
                 

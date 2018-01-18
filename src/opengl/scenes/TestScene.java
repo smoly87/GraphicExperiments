@@ -33,8 +33,12 @@ public class TestScene extends Scene{
     public int[]  fboEnvMap = new int[1];
     protected int t;
     protected double startTime = 0;
+
     public TestScene(GL4 gl) throws LoadResourseException {
         super(gl);
+        this.lightPosition = new Vector3(0.0f, 0.0f, -3.0f);
+        this.camRotVec = new Vector3();
+        this.cameraPosVector = new Vector3(1.0f, 0.0f, 0.0f);
       
         startTime = System.currentTimeMillis();
      
@@ -75,7 +79,7 @@ public class TestScene extends Scene{
            
            
            africanHead.init();
-           africanHead.bodyTranlate(new Vector3(0.0f, 0.0f, -2.0f));
+           africanHead.bodyTranlate(new Vector3(0.0f, 0.0f, 0.0f));
            sceneObjects.put("head", africanHead);
         
      }
@@ -89,22 +93,23 @@ public class TestScene extends Scene{
            sceneObjects.put("head2", africanHead);
         
       }
+      
+      
+    protected SceneObject createSphere(Vector3 pos,float scale, String textFile){     
+        SceneObject sphere = new Sphere(this.gl);
+        sphere.setTextureFile(textFile);
+
+        sphere.init();
+        sphere.bodyScale(scale);
+        sphere.bodyTranlate(pos);
+        return sphere;
+    }  
+    
     protected void  loadLightVisualiser(){
             
-           SceneObject sphere = new Sphere(this.gl);
-           sphere.setTextureFile("uv_checker large.png");
-           //plane.setModelFile("floor.obj");
-          /* try{
-               sphere.addShaderProgram(sphere.getShadersFilePath() + "normalVisualiser/", true, "NormVisualiser");
-           } catch(LoadResourseException e){
-               System.err.println("Load normal visualiser error");
-               System.err.println(e.getMessage());
-           }*/
-           sphere.init();
-           sphere.bodyScale(0.05f);
-           sphere.bodyTranlate(lightPosition);
+      
           // plane.bodyRotateX(-(float)Math.PI/2 );
-           sceneObjects.put("light", sphere);
+           sceneObjects.put("light", createSphere(lightPosition,0.3f, "uv_checker large.png"));
         
      }
 
@@ -173,8 +178,10 @@ public class TestScene extends Scene{
          vecField.setVertexes(mesh.getVertexesCoords());
          vecField.setVertexData(mesh.getNormalsCoords());//getNormalsCoords*/
          //vecField.init();
-         loadHeadModel();
          loadLightVisualiser();
+         loadHeadModel();
+         SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,0.0f),0.5f, "floor_diffuse.tga");
+         sceneObjects.put("sph", sph);
         // sceneObjects.put("vec_field", vecField);
         /* loadQuad();
          CompShaderFiction shad = new CompShaderFiction(gl);
@@ -188,8 +195,8 @@ public class TestScene extends Scene{
      }
      
      
-     public void init(){
-         this.cameraPosVector = new Vector3(0f, 0.0f, -2.0f);
+     public void init() throws LoadResourseException{
+         this.cameraPosVector = new Vector3(0f, 0.0f, 1.0f);
          super.init();
        //  Vector3 upVec = new Vector3(0, 1, 0);
        //  this.viewMatrix = SceneCalculations.lookAt( cameraPosVector, new Vector3(0,0, -2.0f) , upVec );

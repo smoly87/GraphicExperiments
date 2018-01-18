@@ -14,6 +14,11 @@ import math.linearAlgebra.Vector3;
  */
 public class ViewCalcResult {
     protected Matrix viewMatrix;
+    protected Matrix translationMatrix;
+
+    public Matrix getTranslationMatrix() {
+        return translationMatrix;
+    }
     protected Vector3 posVectorCurBasis;
 
     public Matrix getViewMatrix() {
@@ -24,8 +29,9 @@ public class ViewCalcResult {
         return posVectorCurBasis;
     }
 
-    public ViewCalcResult(Matrix viewMatrix, Vector3 posVectorCurBasis) {
+    public ViewCalcResult(Matrix viewMatrix, Vector3 posVectorCurBasis, Matrix translationMatrix) {
         this.viewMatrix = viewMatrix;
+        this.translationMatrix =  translationMatrix;
         this.posVectorCurBasis = posVectorCurBasis;
     }
 }

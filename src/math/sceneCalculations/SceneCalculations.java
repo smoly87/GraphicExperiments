@@ -34,7 +34,7 @@ public class SceneCalculations {
      * @return Проекционная матрица
      */
     public static Matrix calcProjMatrix(int screenWidth, int screenHeight, float fieldOfView, float Zfar, float Znear){
-        Matrix projectionMatrix = new Matrix();
+              Matrix projectionMatrix = new Matrix();
         float acepectRatio = (float)screenWidth / (float)screenHeight;
         float tanHalfFov = tan( (float) Math.toRadians((float)fieldOfView / 2) );
         
@@ -80,17 +80,32 @@ public class SceneCalculations {
     
     /**
      * 
+     * @return Angles between old and new basis axis by pairs.(x, x')m (y,y'), (z,z')
+     */
+    public static Vector3 basisAngles(Matrix newBasis, Matrix oldBasis){
+        Matrix R = newBasis.transpose().multiply(oldBasis);
+        Vector3 res = new Vector3();
+        
+        for(int i=0;i<3;i++){
+            res.values[i] = arccos(R.values[i][i])/(float)Math.PI;
+        }
+        
+        return res;
+    }
+    
+    /**
+     * 
      * @param camView
      * @param camPosVector This parameter is in old basis. It will be recounted to a new basis.
      * @return 
      */
     public static ViewCalcResult calcViewMatrix(Matrix camView, Vector3 camPosVector){
         Matrix camTrans = new MatrixUnit();
-        Vector3 camPosNewBasis = camView.multiply(camPosVector.chageSign().toVector3(), 0);
-        camTrans.setColumn(camPosNewBasis, 3);
+        Vector3 camPosNewBasis = camView.transpose().multiply(camPosVector.chageSign().toVector3(), 0);
+        camTrans.setColumn(camPosVector.chageSign(), 3);
         camView = camView.transpose().multiply(camTrans);
         
-        return new ViewCalcResult(camView, camPosNewBasis) ;
+        return new ViewCalcResult(camView, camPosNewBasis.chageSign().toVector3(), camTrans) ;
     }
     
    /* public Vector3 basisAngles(){

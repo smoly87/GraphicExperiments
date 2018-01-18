@@ -68,12 +68,12 @@ public class Scene implements KeyListener{
     protected Matrix camView ;
     protected Matrix camTrans ;
     
-    protected float Zfar = 10.0f;
+    protected float Zfar = -10.0f;
     protected float Znear = 1.0f;
     
-    protected Vector3 cameraPosVector = new Vector3(2f, 0.0f, 2.0f);
-    protected Vector3 camRotVec  = new Vector3(0f,0f,0f);
-    protected Vector3 lightPosition  = new Vector3(2f, 0.0f, 2.0f);
+    protected Vector3 cameraPosVector ;
+    protected Vector3 camRotVec  ;
+    protected Vector3 lightPosition  ;
     protected Vector3 initialCamPos;
     
     protected HashMap<String, SceneObject> sceneObjects;
@@ -83,6 +83,8 @@ public class Scene implements KeyListener{
     protected static final int  TEX_BUFFERS_CNT = 1;
     protected GL4 gl;
     
+    protected ViewCalcResult viewCalcRes ;
+    
     public Scene(GL4 gl) throws LoadResourseException{
         sceneObjects = new HashMap<>();
         shadersExtPrograms = new HashMap<>();
@@ -90,9 +92,7 @@ public class Scene implements KeyListener{
         textBuffers = IntBuffer.allocate(TEX_BUFFERS_CNT);
         FBoBuffers = IntBuffer.allocate(1);
         
-        if(optShadowMapping){
-            initShadowMapProg();
-        }
+        
     }
     
     protected void initShadowMapProg() throws LoadResourseException{
@@ -121,7 +121,7 @@ public class Scene implements KeyListener{
         programObject.setUniform(gl, "viewDir", cameraPosVector.normalise().values, 3);
        // setLightsProps(gl3, programObject);
     }
-    public void init(){
+    public void init() throws LoadResourseException{
         viewMatrix = new MatrixUnit();
         viewMatrixBearing = new  MatrixUnit();
         basisMatr = new MatrixUnit();
@@ -133,6 +133,9 @@ public class Scene implements KeyListener{
         
         calcProjMatrix();
         resetCamera();
+        if(optShadowMapping){
+            initShadowMapProg();
+        }
         //calcCameraMatrix();
         //createLight(gl3);
     }
@@ -224,12 +227,7 @@ public class Scene implements KeyListener{
         shadowProg.setUniform(gl, "lightMVP", lightMVP.multiply(lightMVP));
     }
     
-    protected Matrix getLightMVP(){
-        Vector3 upVec = new Vector3(0.0f, 1.0f, 0.0f);
-        Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
-        Matrix lightMVP = SceneCalculations.lookAt(this.lightPosition, center, upVec);
-        return lightMVP;
-    }
+  
     
     protected void renderShadowMap(){
         createFBO();
@@ -321,15 +319,25 @@ public class Scene implements KeyListener{
         }
     }
     
+    protected Matrix getLightMVP(){
+        Vector3 upVec = new Vector3(0.0f, 1.0f, 0.0f);
+        Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
+        Matrix lightMVP = SceneCalculations.lookAt(this.lightPosition, center, upVec);
+        return lightMVP;
+    }
+    
     protected void lookFromLight(){
         cameraPosVector = lightPosition;
         camView= getLightMVP();
 
        // basisMatr = viewMatrix;
        recalcViewMatrix();
+       
+       Vector3 lightPosNew =  viewMatrix.multiply(this.lightPosition, 1);
+        System.out.println("Light pos is" + lightPosNew.toString());
     }
     protected void lookFromTop(){
-        cameraPosVector = new Vector3 (0.0f, 2.0f, 0.0f);
+        cameraPosVector = new Vector3 (0.0f, 3.0f, 1.0f);
         Vector3 upVec = new Vector3(0.0f, 1.0f, 0.0f);
         Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
         camView = SceneCalculations.lookAt(cameraPosVector, center, upVec);
@@ -345,21 +353,21 @@ public class Scene implements KeyListener{
     }
     
     protected void recalcViewMatrix(){
-        ViewCalcResult viewCalcRes =  SceneCalculations.calcViewMatrix(camView, cameraPosVector);
+        this.viewCalcRes =  SceneCalculations.calcViewMatrix(camView, cameraPosVector);
         viewMatrix = viewCalcRes.getViewMatrix();
-        cameraPosVector = viewCalcRes.getPosVectorCurBasis();
+        //cameraPosVector = new Vector3();
      }
     
     public void incCameraRotation(Vector3 deltaVec){
        Matrix44 matRotY = new MatrixRotationY(deltaVec.values[1]);
        Matrix44 matRotX = new MatrixRotationX(deltaVec.values[0]);
-       Matrix M1 =  matRotY.multiply(matRotX);
+       Matrix M1 =  (matRotY.multiply(matRotX));
        
-       camView = camView.multiply(M1);
+       Matrix Tr = viewCalcRes.getTranslationMatrix();
+       camView = M1.multiply(camView);
        //camRotVec = basisMatr.multiply(camRotVec);
        //Commutator
        
-       Matrix M2 =  matRotY.multiply(matRotX);
        
        // M1.plus(M2.changeSign()).toString();
        
@@ -372,6 +380,7 @@ public class Scene implements KeyListener{
 
        
        //Vector3 vecT = basisMatr.multiply(deltaVec);
+       deltaVec = camView.multiply(deltaVec, 0);
        cameraPosVector = cameraPosVector.plus(deltaVec ) ;
        recalcViewMatrix();
        
