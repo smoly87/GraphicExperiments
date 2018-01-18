@@ -57,7 +57,7 @@ public class SceneCalculations {
         return projectionMatrix;
     }
    
-    public static Matrix[] lookAt(Vector3 eye, Vector3 center, Vector3 up){
+    public static Matrix lookAt(Vector3 eye, Vector3 center, Vector3 up){
         if(up == null) up = new Vector3(0, 1, 0);
         //Поворот базиса камеры
         Vector z = eye.minus(center );
@@ -72,15 +72,25 @@ public class SceneCalculations {
         M.setColumn(y, 1);
         M.setColumn(z, 2);
         
-        Matrix Tr = new MatrixUnit();
-        Tr.setColumn(eye.chageSign(), 3);
+       
         
-        return new Matrix[]{ M, Tr};
-        /*Matrix Tr = new MatrixUnit();
-        M.setRow(eye.chageSign(), 3);
+        return  M;
+         
+    }
+    
+    /**
+     * 
+     * @param camView
+     * @param camPosVector This parameter is in old basis. It will be recounted to a new basis.
+     * @return 
+     */
+    public static ViewCalcResult calcViewMatrix(Matrix camView, Vector3 camPosVector){
+        Matrix camTrans = new MatrixUnit();
+        Vector3 camPosNewBasis = camView.multiply(camPosVector.chageSign().toVector3(), 0);
+        camTrans.setColumn(camPosNewBasis, 3);
+        camView = camView.transpose().multiply(camTrans);
         
-        return new Matrix[]{M, Tr};*/
-        
+        return new ViewCalcResult(camView, camPosNewBasis) ;
     }
     
    /* public Vector3 basisAngles(){

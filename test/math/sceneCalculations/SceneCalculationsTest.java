@@ -52,8 +52,8 @@ public class SceneCalculationsTest {
         Vector3 center =  new Vector3(0.0f, 0.0f, 0.0f);;
         Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
         
-        Matrix Matr[] = SceneCalculations.lookAt(eye, center, up);
-        Matrix U = Matr[0]; 
+        Matrix U  = SceneCalculations.lookAt(eye, center, up);
+        
         U = U.getRange(0, 0, 2, 2);
         System.out.println("Look At Matrix:" + U.det());
         System.out.println(U.toString());

@@ -33,6 +33,7 @@ import math.linearAlgebra.Matrix44;
 import math.linearAlgebra.Vector;
 import math.linearAlgebra.Vector3;
 import math.sceneCalculations.SceneCalculations;
+import math.sceneCalculations.ViewCalcResult;
 import math.transformMatricies4.MatrixRotationX;
 import math.transformMatricies4.MatrixRotationY;
 import math.transformMatricies4.MatrixTranslation;
@@ -218,15 +219,15 @@ public class Scene implements KeyListener{
         gl.glGenFramebuffers(1, FBoBuffers);
         gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
         createFrameBufferTexture();
-        Matrix[] lightMVP =  getLightMVP();
+        Matrix lightMVP =  getLightMVP();
         GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
-        shadowProg.setUniform(gl, "lightMVP", lightMVP[0].multiply(lightMVP[1]));
+        shadowProg.setUniform(gl, "lightMVP", lightMVP.multiply(lightMVP));
     }
     
-    protected Matrix[] getLightMVP(){
+    protected Matrix getLightMVP(){
         Vector3 upVec = new Vector3(0.0f, 1.0f, 0.0f);
         Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
-        Matrix[] lightMVP = SceneCalculations.lookAt(this.lightPosition, center, upVec);
+        Matrix lightMVP = SceneCalculations.lookAt(this.lightPosition, center, upVec);
         return lightMVP;
     }
     
@@ -322,8 +323,8 @@ public class Scene implements KeyListener{
     
     protected void lookFromLight(){
         cameraPosVector = lightPosition;
-        Matrix[] mvp = getLightMVP();
-        camView = mvp[0];
+        camView= getLightMVP();
+
        // basisMatr = viewMatrix;
        recalcViewMatrix();
     }
@@ -331,8 +332,8 @@ public class Scene implements KeyListener{
         cameraPosVector = new Vector3 (0.0f, 2.0f, 0.0f);
         Vector3 upVec = new Vector3(0.0f, 1.0f, 0.0f);
         Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
-        Matrix MVP[] = SceneCalculations.lookAt(this.lightPosition, center, upVec);
-       camView = MVP[0];
+        camView = SceneCalculations.lookAt(cameraPosVector, center, upVec);
+
        // basisMatr = viewMatrix;
        recalcViewMatrix();
 
@@ -344,18 +345,9 @@ public class Scene implements KeyListener{
     }
     
     protected void recalcViewMatrix(){
-        
-        
-
-        camTrans = new MatrixUnit();
-        Vector camPosNewBasis = camView.multiply(cameraPosVector.chageSign().toVector3(), 0);
-        camTrans.setColumn(camPosNewBasis, 3);
-        
-        System.out.println(viewMatrix.toString());
-        System.out.println(camTrans.toString());
-        viewMatrix = camView.transpose().multiply(camTrans);
-        
-        
+        ViewCalcResult viewCalcRes =  SceneCalculations.calcViewMatrix(camView, cameraPosVector);
+        viewMatrix = viewCalcRes.getViewMatrix();
+        cameraPosVector = viewCalcRes.getPosVectorCurBasis();
      }
     
     public void incCameraRotation(Vector3 deltaVec){
