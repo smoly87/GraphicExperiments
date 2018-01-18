@@ -57,25 +57,33 @@ public class SceneCalculations {
         return projectionMatrix;
     }
    
-    public static Matrix lookAt(Vector3 eye, Vector3 center, Vector3 up){
+    public static Matrix[] lookAt(Vector3 eye, Vector3 center, Vector3 up){
         if(up == null) up = new Vector3(0, 1, 0);
         //Поворот базиса камеры
-        Vector z = eye.minus(center).normalise();
+        Vector z = eye.minus(center );
+         z =       z.normalise();
         Vector x = Vector3.cross(up, z).normalise();
         Vector y = Vector3.cross(z, x).normalise();
 
+       
         Matrix M = new MatrixUnit();
         
         M.setColumn(x, 0);
         M.setColumn(y, 1);
         M.setColumn(z, 2);
         
-        //M.setColumn(eye.chageSign(), 3);
+        Matrix Tr = new MatrixUnit();
+        Tr.setColumn(eye.chageSign(), 3);
         
-        Matrix Tr = new MatrixTranslation(eye.chageSign());
-        //Tr.setColumn(eye.chageSign(), 3);
+        return new Matrix[]{ M, Tr};
+        /*Matrix Tr = new MatrixUnit();
+        M.setRow(eye.chageSign(), 3);
         
-        return Tr.multiply(M.transpose());
+        return new Matrix[]{M, Tr};*/
+        
+    }
+    
+   /* public Vector3 basisAngles(){
     }
     
    /* public static Vector getLookAtVectorByEulerAngles(Vector camRotVec){

@@ -24,5 +24,11 @@ public class Matrix44 extends Matrix{
         super(values);
     }
 
-    
+    public Matrix33 getMatrix33(){
+        
+        return new Matrix33(this.getRange(0, 0, 2, 2));
+    }
+     public Vector3 multiply(Vector3 p){
+       return  multiply(p.toVector4()).toVector3();
+    }
 }

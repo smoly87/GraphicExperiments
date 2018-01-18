@@ -56,7 +56,7 @@ public class SceneObject {
     
     protected IntBuffer buffers;
     protected IntBuffer vertexArrayObject;
-    protected IntBuffer textBuffers;
+    
     
     protected HashMap<Integer, Integer> buffersAssociations;
     protected int curBufNum = 0;
@@ -110,31 +110,10 @@ public class SceneObject {
 
     protected String bumpMappingTextureFile;
     
-    protected IntBuffer FBoBuffers;
+
 
     
-    
-    protected void createFrameBufferTexture(){
-        gl.glGenTextures(1,  textBuffers);
-        gl.glBindTexture(GL_TEXTURE_2D, textBuffers.get(0));
-        //TODO: Screen size
-        gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    }
-    
-    protected void createFBO(){
-        gl.glGenFramebuffers(1, FBoBuffers);
-        gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
-        createFrameBufferTexture();
-    }
-    
-    protected void renderShadowMap(){
-        
-    }
-    
+
     public String getBumpMappingTextureFile() {
         return bumpMappingTextureFile;
     }
@@ -514,17 +493,8 @@ public class SceneObject {
     }
     
     protected void buildShaders() throws LoadResourseException{
-      GLSLProgramObject shaderProg;
-      
-      if(optShadowMapping){
-          shaderProg= GLProgramBuilder.buildProgram(gl, assetsFilepath + shadersFilePath+"shadow_map/", true, true, false);
-          this.shadersPrograms.put("ShadowMapProg", shaderProg);
-      }  
-      
-      shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + shadersFilePath, true, true, optLoadGeomShader);
-      this.shadersPrograms.put("Main", shaderProg);
-      
-     
+       GLSLProgramObject shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + shadersFilePath, true, true, optLoadGeomShader);
+       this.shadersPrograms.put("Main", shaderProg);
     }
     
     public void addShaderProgram(String folder, boolean geometryShaderLoad, String progName) throws LoadResourseException{

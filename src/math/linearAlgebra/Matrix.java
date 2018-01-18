@@ -122,14 +122,24 @@ public class Matrix {
      * @return 
      */ 
     public Vector multiply(Vector p){
-       Matrix pW = new Matrix(p, true);
-       return multiply(pW).getColumn(0);
+       return multiplyVec(p);
     } 
     
+     public Vector multiplyVec(Vector p){
+       Matrix pW = new Matrix(p, true);
+       pW = multiply(pW);
+       return pW.getColumn(0);
+    } 
+     
     public Vector3 multiply(Vector3 p){
-       return  multiply(p.toVector4()).toVector3();
+        Vector res = multiplyVec(p);
+        return     res.toVector3();
     }
     
+    public Vector3 multiply(Vector3 p, int wValue){
+        Vector res = multiplyVec(new Vector4(p.values[0], p.values[1], p.values[2], wValue));
+        return     res.toVector3();
+    }
     public  Matrix multiply(Matrix B){
         //Test on size
         int rowCount = this.getRowCount();
@@ -404,5 +414,16 @@ public class Matrix {
      */
     public int getRowCount() {
         return values.length;
+    }
+    
+    public Matrix getRange(int rowStart, int colStart, int rowEnd, int colEnd){
+        float[][] rangeValues = new float[rowEnd - rowStart+1][colEnd - colStart+1];
+        int i = 0;
+        for(int r = rowStart; r <= rowEnd; r++){
+            System.arraycopy(values[r], colStart, rangeValues[i], 0, colEnd - colStart+1);
+            i++;
+        }
+        
+        return new Matrix(rangeValues);
     }
 }

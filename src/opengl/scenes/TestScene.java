@@ -29,13 +29,13 @@ import opengl.scenes.objects.VectorField;
  * @author Andrey
  */
 public class TestScene extends Scene{
-    protected GL4 gl;
+  
     public int[]  fboEnvMap = new int[1];
     protected int t;
     protected double startTime = 0;
-    public TestScene(GL4 gl) {
-        super();
-        this.gl = gl;
+    public TestScene(GL4 gl) throws LoadResourseException {
+        super(gl);
+      
         startTime = System.currentTimeMillis();
      
         
@@ -63,7 +63,7 @@ public class TestScene extends Scene{
            africanHead = new SceneObject(this.gl);
            africanHead.setOptBumpMapping(true);
            africanHead.setBumpMappingTextureFile("african_head_nm_tangent.tga");
-           africanHead.setTextureFile("african_head_diffuse.tga");
+           africanHead.setTextureFile("uv_checker large.png");
            africanHead.setModelFile("african_head.obj");
            
         /* try{
@@ -89,7 +89,7 @@ public class TestScene extends Scene{
            sceneObjects.put("head2", africanHead);
         
       }
-    protected void  loadSphere(){
+    protected void  loadLightVisualiser(){
             
            SceneObject sphere = new Sphere(this.gl);
            sphere.setTextureFile("uv_checker large.png");
@@ -101,7 +101,7 @@ public class TestScene extends Scene{
                System.err.println(e.getMessage());
            }*/
            sphere.init();
-           sphere.bodyScale(0.15f);
+           sphere.bodyScale(0.05f);
            sphere.bodyTranlate(lightPosition);
           // plane.bodyRotateX(-(float)Math.PI/2 );
            sceneObjects.put("light", sphere);
@@ -173,13 +173,14 @@ public class TestScene extends Scene{
          vecField.setVertexes(mesh.getVertexesCoords());
          vecField.setVertexData(mesh.getNormalsCoords());//getNormalsCoords*/
          //vecField.init();
-         
+         loadHeadModel();
+         loadLightVisualiser();
         // sceneObjects.put("vec_field", vecField);
-         loadQuad();
+        /* loadQuad();
          CompShaderFiction shad = new CompShaderFiction(gl);
          shad.setTextureFile("uv_checker large.png");
          shad.init();
-         sceneObjects.put("comp_shader", shad);
+         sceneObjects.put("comp_shader", shad);*/
          
      }
       

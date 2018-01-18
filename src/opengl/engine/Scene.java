@@ -6,11 +6,24 @@
 
 package opengl.engine;
 
+import engine.exception.LoadResourseException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import static javax.media.opengl.GL.GL_CLAMP_TO_EDGE;
+import static javax.media.opengl.GL.GL_DEPTH_COMPONENT16;
+import static javax.media.opengl.GL.GL_FLOAT;
+import static javax.media.opengl.GL.GL_FRAMEBUFFER;
+import static javax.media.opengl.GL.GL_NEAREST;
+import static javax.media.opengl.GL.GL_TEXTURE_2D;
+import static javax.media.opengl.GL.GL_TEXTURE_MAG_FILTER;
+import static javax.media.opengl.GL.GL_TEXTURE_MIN_FILTER;
+import static javax.media.opengl.GL.GL_TEXTURE_WRAP_S;
+import static javax.media.opengl.GL.GL_TEXTURE_WRAP_T;
+import static javax.media.opengl.GL2ES2.GL_DEPTH_COMPONENT;
 import javax.media.opengl.GL3;
 import javax.media.opengl.GL4;
 import javax.media.opengl.GLAutoDrawable;
@@ -39,7 +52,11 @@ public class Scene implements KeyListener{
     protected boolean optUseModelMatrix = false;
     protected boolean optDeepTest = true;
     protected boolean optWireFrame = false;
-       
+    
+    protected boolean optShadowMapping = true;
+    protected String assetsFilepath = "/graphicsexperiment/assets/";
+    protected String shadersFilePath =  "shaders/"; 
+    
     protected Matrix viewMatrix;
     protected Matrix normTransform;
     protected Matrix projectionMatrix;
@@ -47,18 +64,39 @@ public class Scene implements KeyListener{
     protected Matrix basisMatr ;
     protected Matrix viewMatrixBearing;
     
+    protected Matrix camView ;
+    protected Matrix camTrans ;
     
     protected float Zfar = 10.0f;
     protected float Znear = 1.0f;
     
-    protected Vector3 cameraPosVector = new Vector3(0f, 0.0f, 0.0f);
+    protected Vector3 cameraPosVector = new Vector3(2f, 0.0f, 2.0f);
     protected Vector3 camRotVec  = new Vector3(0f,0f,0f);
-    protected Vector3 lightPosition  = new Vector3(3f, 0f, 0.5f);
+    protected Vector3 lightPosition  = new Vector3(2f, 0.0f, 2.0f);
+    protected Vector3 initialCamPos;
     
     protected HashMap<String, SceneObject> sceneObjects;
+    protected IntBuffer FBoBuffers;
+    protected HashMap<String, GLSLProgramObject>shadersExtPrograms;
+    protected IntBuffer textBuffers;
+    protected static final int  TEX_BUFFERS_CNT = 1;
+    protected GL4 gl;
     
-    public Scene(){
-       sceneObjects = new HashMap<>();
+    public Scene(GL4 gl) throws LoadResourseException{
+        sceneObjects = new HashMap<>();
+        shadersExtPrograms = new HashMap<>();
+        this.gl = gl;
+        textBuffers = IntBuffer.allocate(TEX_BUFFERS_CNT);
+        FBoBuffers = IntBuffer.allocate(1);
+        
+        if(optShadowMapping){
+            initShadowMapProg();
+        }
+    }
+    
+    protected void initShadowMapProg() throws LoadResourseException{
+        GLSLProgramObject shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + shadersFilePath + "shadow_map/", true, true, false);
+        this.shadersExtPrograms.put("ShadowMap", shaderProg);
     }
     
     /**
@@ -86,9 +124,14 @@ public class Scene implements KeyListener{
         viewMatrix = new MatrixUnit();
         viewMatrixBearing = new  MatrixUnit();
         basisMatr = new MatrixUnit();
+        initialCamPos = this.camRotVec.toVector3();
+        
+        camView = new MatrixUnit();
+        camTrans = new MatrixUnit();
+        
         
         calcProjMatrix();
-        recalcViewMatrix();
+        resetCamera();
         //calcCameraMatrix();
         //createLight(gl3);
     }
@@ -142,6 +185,10 @@ public class Scene implements KeyListener{
            // gl.glEnable(GL4.GL_DEPTH_CLAMP);
         }
         
+        if(optShadowMapping){
+            renderShadowMap();
+        }
+        
         this.renderObjects(gl);
         
         glad.swapBuffers();
@@ -155,6 +202,38 @@ public class Scene implements KeyListener{
         }
         
     } 
+        
+    protected void createFrameBufferTexture(){
+        gl.glGenTextures(1,  textBuffers);
+        gl.glBindTexture(GL_TEXTURE_2D, textBuffers.get(0));
+        //TODO: Screen size
+        gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 768, 0, GL_DEPTH_COMPONENT, GL_FLOAT, null);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+    
+    protected void createFBO(){
+        gl.glGenFramebuffers(1, FBoBuffers);
+        gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
+        createFrameBufferTexture();
+        Matrix[] lightMVP =  getLightMVP();
+        GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
+        shadowProg.setUniform(gl, "lightMVP", lightMVP[0].multiply(lightMVP[1]));
+    }
+    
+    protected Matrix[] getLightMVP(){
+        Vector3 upVec = new Vector3(0.0f, 1.0f, 0.0f);
+        Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
+        Matrix[] lightMVP = SceneCalculations.lookAt(this.lightPosition, center, upVec);
+        return lightMVP;
+    }
+    
+    protected void renderShadowMap(){
+        createFBO();
+        gl.glBindFramebuffer(GL_FRAMEBUFFER,0);
+    }
     
     protected void renderObjects(GL4 gl){
          for (Map.Entry<String, SceneObject> entry : sceneObjects.entrySet()) {
@@ -191,10 +270,10 @@ public class Scene implements KeyListener{
         /*float factor;
          factor = e.isShiftDown() ? 10 : 1;*/
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_F5:
+            case KeyEvent.VK_F1:
                  optWireFrame = !optWireFrame;
                  break;
-            case KeyEvent.VK_F6:
+            case KeyEvent.VK_F2:
                  optDeepTest = !optDeepTest;
                  break;    
             case KeyEvent.VK_LEFT:
@@ -227,29 +306,56 @@ public class Scene implements KeyListener{
             case KeyEvent.VK_PAGE_DOWN:
                 incCameraPosition(new Vector3(new float[]{0.0f, -0.1f, 0.0f}));
                 break;    
+                
+            case KeyEvent.VK_F5:
+                resetCamera();
+                break;
+            case KeyEvent.VK_F6:
+                lookFromLight();
+                break;
+             case KeyEvent.VK_F7:
+                lookFromTop();
+                break;    
+                    
         }
+    }
+    
+    protected void lookFromLight(){
+        cameraPosVector = lightPosition;
+        Matrix[] mvp = getLightMVP();
+        camView = mvp[0];
+       // basisMatr = viewMatrix;
+       recalcViewMatrix();
+    }
+    protected void lookFromTop(){
+        cameraPosVector = new Vector3 (0.0f, 2.0f, 0.0f);
+        Vector3 upVec = new Vector3(0.0f, 1.0f, 0.0f);
+        Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
+        Matrix MVP[] = SceneCalculations.lookAt(this.lightPosition, center, upVec);
+       camView = MVP[0];
+       // basisMatr = viewMatrix;
+       recalcViewMatrix();
+
+    }
+    protected void resetCamera(){
+        camView = new MatrixUnit();
+        cameraPosVector = initialCamPos;
+        recalcViewMatrix();
     }
     
     protected void recalcViewMatrix(){
         
         
-       /* Vector3 lookVec = new Vector3(0f, 0f , -1f);
-        Vector3 centerOfWorldVec = new  Vector3(0f, 0f , 0f);
-        Vector3 upVec = new Vector3(0f, 1f , 0f);
-        lookVec = rotMatr.multiply(lookVec);
-        //Если взгляд по оси Y направлен, то up будем лежать с ним в одной плоскости!
-        if(Math.abs(Math.abs(lookVec.normalise().values[1]) - 1.0f) < 0.05){
-             Matrix44 matRotX = new MatrixRotationX((float)Math.PI / 4);
-             upVec = matRotX.multiply(lookVec);
-        }
-        
-        
 
-        viewMatrix = SceneCalculations.lookAt( cameraPosVector, cameraPosVector.plus(lookVec), upVec );*/
-        MatrixTranslation Tr = new MatrixTranslation(cameraPosVector);
-        //(A*B)^-1 = (B^-1)*(A^-1)
-        //-1 = T для ортонормированного базиса
-        viewMatrix = (basisMatr.transpose()).multiply(Tr);
+        camTrans = new MatrixUnit();
+        Vector camPosNewBasis = camView.multiply(cameraPosVector.chageSign().toVector3(), 0);
+        camTrans.setColumn(camPosNewBasis, 3);
+        
+        System.out.println(viewMatrix.toString());
+        System.out.println(camTrans.toString());
+        viewMatrix = camView.transpose().multiply(camTrans);
+        
+        
      }
     
     public void incCameraRotation(Vector3 deltaVec){
@@ -257,7 +363,8 @@ public class Scene implements KeyListener{
        Matrix44 matRotX = new MatrixRotationX(deltaVec.values[0]);
        Matrix M1 =  matRotY.multiply(matRotX);
        
-       basisMatr = basisMatr.multiply(M1);
+       camView = camView.multiply(M1);
+       //camRotVec = basisMatr.multiply(camRotVec);
        //Commutator
        
        Matrix M2 =  matRotY.multiply(matRotX);
@@ -272,8 +379,8 @@ public class Scene implements KeyListener{
     public void incCameraPosition(Vector3 deltaVec){
 
        
-       Vector3 vecT = basisMatr.multiply(deltaVec);
-       cameraPosVector = cameraPosVector.minus(vecT ) ;
+       //Vector3 vecT = basisMatr.multiply(deltaVec);
+       cameraPosVector = cameraPosVector.plus(deltaVec ) ;
        recalcViewMatrix();
        
        

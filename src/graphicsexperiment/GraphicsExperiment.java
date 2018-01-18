@@ -10,6 +10,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.jogamp.opengl.util.GLBuffers;
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
+import engine.exception.LoadResourseException;
 
 import engine.meshLoader.MeshLoaderObjFormat;
 import java.awt.Frame;
@@ -101,8 +102,12 @@ public class GraphicsExperiment  implements GLEventListener {
         canvas.setAutoSwapBufferMode(false);
 
         GL4 gl = glad.getGL().getGL4();
-        scene = new TestScene(gl);
-       // scene.init();
+        try {
+            scene = new TestScene(gl);
+            // scene.init();
+        } catch (LoadResourseException ex) {
+            Logger.getLogger(GraphicsExperiment.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         scene.setScreenWidth(imageWidth);
         scene.setScreenHeight(imageHeight);
