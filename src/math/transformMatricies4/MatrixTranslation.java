@@ -27,4 +27,17 @@ public class MatrixTranslation extends MatrixUnit{
             values[i][3] = vecMove.values[i];
         }
     }
+    
+    /**
+     * Inverse Matrix
+     * @return 
+     */
+    @Override
+    public MatrixTranslation inverse(){
+        Vector T = this.getColumn(3);
+        T = T.chageSign();
+        T.values[3] = 1.0f;
+        MatrixTranslation M = new MatrixTranslation(T);
+        return M;
+    }
 }

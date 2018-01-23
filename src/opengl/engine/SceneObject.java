@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static javax.media.opengl.GL.GL_TEXTURE_2D;
 import javax.media.opengl.GL4;
 import static javax.media.opengl.GL4.*;
 import javax.media.opengl.GLException;
@@ -152,10 +153,16 @@ public class SceneObject {
     
     protected void setTextureToShader( GLSLProgramObject shaderProgram, Texture tex, String samplerName, int ind){
         textureId = gl.glGetUniformLocation(shaderProgram.getProgramId(), samplerName);
+        if(textureId < 0) return;
+        gl.glUniform1i(textureId, ind);
         gl.glActiveTexture(ind);
-        tex.enable(gl);
+        gl.glBindTexture(GL_TEXTURE_2D, textureId);
         tex.bind(gl);
-        gl.glUniform1i(textureId, 0);
+        tex.enable(gl);
+        
+        gl.glActiveTexture(0);
+
+        
     }
     
     public void display(GL4 gl, GLSLProgramObject shaderProgram, String shaderProgramName ){
@@ -173,8 +180,7 @@ public class SceneObject {
         gl.glBindVertexArray(0);
     }
     
-    
-     
+  
     
     public void setGlobalMatricies(GLSLProgramObject programObject, Matrix projectionMatrix, Matrix viewMatrix){
        /* MatrixChainOperations mtrChain = new MatrixChainOperations();

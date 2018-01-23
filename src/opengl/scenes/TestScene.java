@@ -36,7 +36,7 @@ public class TestScene extends Scene{
 
     public TestScene(GL4 gl) throws LoadResourseException {
         super(gl);
-        this.lightPosition = new Vector3(0.0f, 0.0f, -3.0f);
+        this.lightPosition = new Vector3(0.0f, 0.0f, 3.0f);
         this.camRotVec = new Vector3();
         this.cameraPosVector = new Vector3(1.0f, 0.0f, 0.0f);
       
@@ -65,21 +65,22 @@ public class TestScene extends Scene{
      protected void  loadHeadModel(){
            SceneObject africanHead;
            africanHead = new SceneObject(this.gl);
-           africanHead.setOptBumpMapping(true);
+           africanHead.setOptBumpMapping(false);
            africanHead.setBumpMappingTextureFile("african_head_nm_tangent.tga");
-           africanHead.setTextureFile("uv_checker large.png");
+           africanHead.setTextureFile("african_head_diffuse.tga");
            africanHead.setModelFile("african_head.obj");
            
-        /* try{
+           /*
+           try{
                africanHead.addShaderProgram(africanHead.getShadersFilePath() + "normalVisualiser/", true, "NormVisualiser");
            } catch(LoadResourseException e){
                System.err.println("Load normal visualiser error");
                System.err.println(e.getMessage());
-           }*/
-           
+           }
+           */
            
            africanHead.init();
-           africanHead.bodyTranlate(new Vector3(0.0f, 0.0f, 0.0f));
+           africanHead.bodyTranlate(new Vector3(0.0f, 0.0f,0.0f));
            sceneObjects.put("head", africanHead);
         
      }
@@ -109,7 +110,7 @@ public class TestScene extends Scene{
             
       
           // plane.bodyRotateX(-(float)Math.PI/2 );
-           sceneObjects.put("light", createSphere(lightPosition,0.3f, "uv_checker large.png"));
+           sceneObjects.put("light", createSphere(lightPosition,1.0f, "uv_checker large.png"));
         
      }
 
@@ -178,13 +179,13 @@ public class TestScene extends Scene{
          vecField.setVertexes(mesh.getVertexesCoords());
          vecField.setVertexData(mesh.getNormalsCoords());//getNormalsCoords*/
          //vecField.init();
-         loadLightVisualiser();
+       // loadLightVisualiser();
          loadHeadModel();
-         SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,0.0f),0.5f, "floor_diffuse.tga");
+         SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "floor_diffuse.tga");
          sceneObjects.put("sph", sph);
         // sceneObjects.put("vec_field", vecField);
-        /* loadQuad();
-         CompShaderFiction shad = new CompShaderFiction(gl);
+        loadQuad();
+         /*CompShaderFiction shad = new CompShaderFiction(gl);
          shad.setTextureFile("uv_checker large.png");
          shad.init();
          sceneObjects.put("comp_shader", shad);*/

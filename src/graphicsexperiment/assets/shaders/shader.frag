@@ -18,9 +18,11 @@ uniform struct Light {
 in Vertex vert;
 in vec3 light_position;
 in vec3 view_dir;
+in vec4 shadowCoord;
 
 uniform sampler2D myTexture;
 uniform sampler2D bumpTexture;
+uniform sampler2D shadowTexture;
 
 uniform vec3 viewDir;
 
@@ -38,14 +40,39 @@ vec3 calcNewNormal(){
     return NewNormal;
 }
 
+vec3 calcNewNormalApproach2(){
+   vec3 Normal = normalize(vert.normal);
+   vec3 Tangent = normalize(vert.tanget);
+   vec3 Bitangent = cross(Tangent, Normal);
+   
+   mat3 U = mat3(Tangent, Bitangent, Normal);
+   mat3 UI = inverse(U);
+   
+   vec3 deltaNS = texture(bumpTexture, vert.textureUV).xyz;
+   
+   vec3 NS = UI*Normal;
+   vec3 NcS = (NS - deltaNS);
+   
+   vec3 NewNormal = U * NcS;
+   return NewNormal;
+}
+
 void main(){
     vec4 pointColor = texture(myTexture, vert.textureUV).rgba;
-	vec3 N = normalize(vert.normal);// calcNewNormal();//
+	vec3 N = normalize(vert.normal);//calcNewNormalApproach2();//// calcNewNormal();//
 	vec3 L = normalize(light_position);
 	vec3 V = vec3(0, 0 ,1);
 	
     float NdotL = max(dot(N, L), 0.0);
 	float specularI = max(2 * dot(N, L) * dot(V, N) - dot(L, V), 0.0);
-	outputColor =  pointColor * 0.1 +  pointColor * NdotL * 0.5 +pointColor*pow(specularI, 10) * 0.4; //;
+	
+	float visibility = 1.0;
+	vec3 shadowCoordD = shadowCoord.xyz/shadowCoord.w;
+	 shadowCoordD = shadowCoordD* 0.5 + 0.5; 
+    if (    shadowCoordD.z <= texture( shadowTexture, shadowCoordD.xy ).r ){
+          visibility = 0.1;
+    }
+	
+	outputColor =  visibility*pointColor * 0.1 +  visibility*pointColor * NdotL * 0.5 +visibility*pointColor*pow(specularI, 10) * 0.4; //;
    // outputColor =pointColor;
 }

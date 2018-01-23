@@ -26,7 +26,10 @@ uniform struct Light {
 out Vertex vert;
 out vec3 light_position;
 out vec3 view_dir;
+out vec4 shadowCoord;
+
 uniform mat4 MVP;
+uniform mat4 lightMVP;
 void main(){
     vert.textureUV = vertexUV;
     gl_Position =  MVP * position; 
@@ -35,5 +38,6 @@ void main(){
 	vert.tanget = (viewMatrix * vec4(tanget, 0.0)).xyz;
 	//view_dir = (viewMatrix * vec4(0,0,1, 0)).xyz; 
 	light_position = (viewMatrix * vec4(light.position, 0.0)).xyz;
+	shadowCoord = projectionMatrix*lightMVP *modelMatrix* position;
 
 }

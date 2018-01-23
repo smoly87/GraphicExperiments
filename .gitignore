@@ -1,2 +1,4 @@
 *.log
+*.rar
+*.zip
 /dist/

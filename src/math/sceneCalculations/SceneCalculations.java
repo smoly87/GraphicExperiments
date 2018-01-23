@@ -13,6 +13,7 @@ import math.linearAlgebra.Vector;
 import math.linearAlgebra.Vector3;
 import math.transformMatricies4.MatrixRotationX;
 import math.transformMatricies4.MatrixRotationY;
+import math.transformMatricies4.MatrixRotationZ;
 import math.transformMatricies4.MatrixTranslation;
 import math.transformMatricies4.MatrixUnit;
 import utils.MathWrapper;
@@ -57,6 +58,30 @@ public class SceneCalculations {
         return projectionMatrix;
     }
    
+    public static Matrix lookAtRot(Vector3 eye, Vector3 center, Vector3 up){
+       
+        Vector3 z = eye.minus(center );
+        z =       z.normalise();
+        
+        MatrixRotationY Ry = new MatrixRotationY((float)Math.PI/2);
+        Vector x = Ry.multiply(z.toVector4());
+        
+        MatrixRotationZ Rz = new MatrixRotationZ((float)Math.PI/2);
+        Vector y = Rz.multiply(x);
+
+       
+        Matrix M = new MatrixUnit();
+        
+        M.setColumn(x.toVector3().normalise(), 0);
+        M.setColumn(y.toVector3().normalise(), 1);
+        M.setColumn(z, 2);
+        
+       
+        
+        return  M;
+         
+    }
+    
     public static Matrix lookAt(Vector3 eye, Vector3 center, Vector3 up){
         if(up == null) up = new Vector3(0, 1, 0);
         //Поворот базиса камеры
@@ -77,7 +102,6 @@ public class SceneCalculations {
         return  M;
          
     }
-    
     /**
      * 
      * @return Angles between old and new basis axis by pairs.(x, x')m (y,y'), (z,z')
@@ -87,27 +111,13 @@ public class SceneCalculations {
         Vector3 res = new Vector3();
         
         for(int i=0;i<3;i++){
-            res.values[i] = arccos(R.values[i][i])/(float)Math.PI;
+            res.values[i] = arccos(R.values[i][i]);
         }
         
         return res;
     }
     
-    /**
-     * 
-     * @param camView
-     * @param camPosVector This parameter is in old basis. It will be recounted to a new basis.
-     * @return 
-     */
-    public static ViewCalcResult calcViewMatrix(Matrix camView, Vector3 camPosVector){
-        Matrix camTrans = new MatrixUnit();
-        Vector3 camPosNewBasis = camView.transpose().multiply(camPosVector.chageSign().toVector3(), 0);
-        camTrans.setColumn(camPosVector.chageSign(), 3);
-        camView = camView.transpose().multiply(camTrans);
-        
-        return new ViewCalcResult(camView, camPosNewBasis.chageSign().toVector3(), camTrans) ;
-    }
-    
+   
    /* public Vector3 basisAngles(){
     }
     

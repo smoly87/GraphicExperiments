@@ -13,7 +13,7 @@ import static utils.MathWrapper.*;
  *
  * @author Andrey
  */
-public class MatrixRotationZ extends Matrix44{
+public class MatrixRotationZ extends MatrixOrthogonal{
 
     /**
      * @param a rotation angle in radians
