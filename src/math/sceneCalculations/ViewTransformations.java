@@ -66,11 +66,16 @@ public class ViewTransformations {
         /*Matrix Tinv = getTranslationMatrix();
         viewMatrix = viewMatrix.multiply(Tinv);*/
          
-        Vector3 basisAngles = SceneCalculations.basisAngles(viewMatrix, new MatrixUnit());
+        Vector3 basisAngles = SceneCalculations.basisAngles(viewMatrix.transpose(), new MatrixUnit());
         float axisAngle = basisAngles.values[1];
+       
         
         Matrix MCancelXRot = new MatrixRotationX(axisAngle);
         viewMatrix = MCancelXRot.multiply(viewMatrix);
+        
+            basisAngles = SceneCalculations.basisAngles(viewMatrix.transpose(), new MatrixUnit());
+         float axisAngleN = basisAngles.values[1];
+        
         
         Matrix YRotMatr = new MatrixRotationY(yAngle).inverse();
         viewMatrix =  YRotMatr.multiply(viewMatrix);

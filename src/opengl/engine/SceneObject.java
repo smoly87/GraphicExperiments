@@ -111,6 +111,15 @@ public class SceneObject {
 
     protected String bumpMappingTextureFile;
     
+    protected boolean optRenderEnabled = true;
+
+    public boolean isOptRenderEnabled() {
+        return optRenderEnabled;
+    }
+
+    public void setOptRenderEnabled(boolean optRenderEnabled) {
+        this.optRenderEnabled = optRenderEnabled;
+    }
 
 
     

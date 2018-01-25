@@ -180,11 +180,12 @@ public class TestScene extends Scene{
          vecField.setVertexData(mesh.getNormalsCoords());//getNormalsCoords*/
          //vecField.init();
        // loadLightVisualiser();
-         loadHeadModel();
-         SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "floor_diffuse.tga");
+        loadHeadModel();
+         SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "uv_checker large.jpg");
          sceneObjects.put("sph", sph);
         // sceneObjects.put("vec_field", vecField);
-        loadQuad();
+        //loadQuad();
+        initScreen();
          /*CompShaderFiction shad = new CompShaderFiction(gl);
          shad.setTextureFile("uv_checker large.png");
          shad.init();
@@ -195,6 +196,15 @@ public class TestScene extends Scene{
      protected void renderTriangle(){
      }
      
+     protected void initScreen(){
+           SceneObject screenObj = new SceneObject(this.gl);
+           screenObj = new Quad(this.gl);
+           screenObj.setTextureFile("uv_checker large.png");
+           screenObj.setShadersFilePath("shaders/color_map/");
+           screenObj.init();
+           screenObj.bodyTranlate(new Vector3(1.0f, 0.0f, -2.0f));
+           sceneObjects.put("screen", screenObj);
+     }
      
      public void init() throws LoadResourseException{
          this.cameraPosVector = new Vector3(0f, 0.0f, 1.0f);

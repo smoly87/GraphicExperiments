@@ -56,7 +56,7 @@ public class Scene implements KeyListener{
     protected boolean optDeepTest = true;
     protected boolean optWireFrame = false;
     
-    protected boolean optShadowMapping = false;
+    protected boolean optShadowMapping = true;
     protected String assetsFilepath = "/graphicsexperiment/assets/";
     protected String shadersFilePath =  "shaders/"; 
     
@@ -70,8 +70,8 @@ public class Scene implements KeyListener{
     protected Matrix camView ;
     protected Matrix camTrans ;
     
-    protected float Zfar = 10.0f;
-    protected float Znear = 1.0f;
+    protected float Zfar = 30.0f;
+    protected float Znear = 0.1f;
     
     protected Vector3 cameraPosVector ;
     protected Vector3 camRotVec  ;
@@ -82,20 +82,28 @@ public class Scene implements KeyListener{
     protected IntBuffer FBoBuffers;
     protected HashMap<String, GLSLProgramObject>shadersExtPrograms;
     protected IntBuffer textBuffers;
+    
     protected static final int  TEX_BUFFERS_CNT = 1;
+    protected static final int  FBO_BUFFERS_CNT = 1;
+    
+    protected static final int  FBO_SHADOW = 0;
+    protected static final int  FBO_COLOR = 1;
+    
     protected GL4 gl;
     
     protected ViewTransformations viewTrasnform ;
     
-    protected Matrix lightMVP;
+    protected Matrix lightMVP = new MatrixUnit();
     protected int depthTextureId;
+    
+    protected FrameBuffer colorBuf;
     
     public Scene(GL4 gl) throws LoadResourseException{
         sceneObjects = new HashMap<>();
         shadersExtPrograms = new HashMap<>();
         this.gl = gl;
         textBuffers = IntBuffer.allocate(TEX_BUFFERS_CNT);
-        FBoBuffers = IntBuffer.allocate(1);
+        FBoBuffers = IntBuffer.allocate(FBO_BUFFERS_CNT);
         
         
     }
@@ -103,6 +111,15 @@ public class Scene implements KeyListener{
     protected void initShadowMapProg() throws LoadResourseException{
         GLSLProgramObject shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + shadersFilePath + "shadow_map/", true, true, false);
         this.shadersExtPrograms.put("ShadowMap", shaderProg);
+    }
+    
+    protected void initColorMapProg() throws LoadResourseException{
+       /* GLSLProgramObject shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + shadersFilePath + "color_map/", true, true, false);
+        this.shadersExtPrograms.put("ColorMap", shaderProg);*/
+       colorBuf = new FrameBuffer(gl, 1024, 768);
+       colorBuf.setBufferPurpose(GL.GL_COLOR_ATTACHMENT0);
+       colorBuf.setTexturePurpose(GL.GL_RGB);
+       colorBuf.init();
     }
     
     /**
@@ -140,6 +157,7 @@ public class Scene implements KeyListener{
         resetCamera();
         if(optShadowMapping){
             initShadowMapProg();
+            initColorMapProg();
             createFBO();
         }
         //calcCameraMatrix();
@@ -182,7 +200,20 @@ public class Scene implements KeyListener{
         
         if(optWireFrame) gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_LINE );
         
-        if(optDeepTest){
+      
+        
+        if(optShadowMapping){
+          
+           // renderShadowMap();
+          gl.glDisable(gl.GL_DEPTH_TEST);
+           sceneObjects.get("screen").setOptRenderEnabled(false);
+           colorBuf.bindFBO();  
+           gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
+           this.renderObjects(gl);
+           colorBuf.unbind();
+           sceneObjects.get("screen").setOptRenderEnabled(true);
+        }
+          if(optDeepTest){
           gl.glEnable(GL4.GL_CULL_FACE);
             gl.glCullFace(GL4.GL_BACK);
             gl.glFrontFace(GL4.GL_CCW);
@@ -193,11 +224,6 @@ public class Scene implements KeyListener{
            // gl.glDepthRangef(0.0f, 10.0f);
            // gl.glEnable(GL4.GL_DEPTH_CLAMP);
         }
-        
-        if(optShadowMapping){
-            gl.glClear(GL4.GL_DEPTH_BUFFER_BIT);
-            renderShadowMap();
-        }
         gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT); //  
        gl.glEnable(GL4.GL_TEXTURE_CUBE_MAP);
         this.renderObjects(gl);
@@ -207,6 +233,9 @@ public class Scene implements KeyListener{
     public void calcProjMatrix(){
         if(optUseProjectionMatrix){
             projectionMatrix = SceneCalculations.calcProjMatrix(screenWidth, screenHeight, fieldOfView, Zfar, Znear);
+            //projectionMatrix = SceneCalculations.calcProjOrtoMatrix(screenWidth, screenHeight, fieldOfView, Zfar, Znear);
+            System.out.println(projectionMatrix); 
+            
         } else{
             projectionMatrix = new MatrixUnit();
            
@@ -226,7 +255,7 @@ public class Scene implements KeyListener{
         gl.glUniform1i(texLoc, GL4.GL_TEXTURE2);
         
         //TODO: Screen size
-        gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 768, 0, GL_DEPTH_COMPONENT, GL_FLOAT, null);
+        gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 768, 0, GL_DEPTH_COMPONENT, GL_FLOAT, null);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -249,9 +278,7 @@ public class Scene implements KeyListener{
         gl.glGenFramebuffers(1, FBoBuffers);
         gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
         createFrameBufferTexture();
-        
-        
-        
+        gl.glBindFramebuffer(GL_FRAMEBUFFER, 0); 
         /*GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
         shadowProg.setUniform(gl, "lightMVP", lightMVP);*/
     }
@@ -294,15 +321,22 @@ public class Scene implements KeyListener{
            String key = entry.getKey();
            SceneObject sceneObj = entry.getValue();
            //setObjectPropsFrame(sceneObj, key);
-            renderObject(gl, sceneObj);
+           if(sceneObj.isOptRenderEnabled()) {
+               renderObject(gl, sceneObj, key);
+           
+           }
         }
     }
     
-    protected void renderObject(GL4 gl, SceneObject sceneObj){
+    protected void renderObject(GL4 gl, SceneObject sceneObj, String objName){
         
          for (Map.Entry<String, GLSLProgramObject> entry : sceneObj.getShadersPrograms().entrySet()) {
            String key = entry.getKey();
            GLSLProgramObject programObject = entry.getValue();
+          
+           if (objName.equals("screen")){
+               colorBuf.setTexture(programObject);
+           }
            execObjShaderProg(gl, sceneObj, key, programObject);
            
          }

@@ -47,10 +47,11 @@ public class SceneCalculations {
         projectionMatrix.values[0][0] = (1.0f / (tanHalfFov)) / acepectRatio;
         projectionMatrix.values[1][1] = 1.0f / (tanHalfFov);
         
-        projectionMatrix.values[2][2] = (- Zp/Zm)  ;
-        projectionMatrix.values[2][3] = -1.0f ;
+        //TODO: !!! Figure out with m23 & m32 Col or row Major
+        projectionMatrix.values[2][2] = -( Zp/Zm)  ;
+        projectionMatrix.values[3][2] = -1.0f ;
         
-        projectionMatrix.values[3][2] = -2.0f * (Zfar * Znear) / Zm ;
+        projectionMatrix.values[2][3] = -2.0f * (Zfar * Znear) / Zm ;
         
        
         projectionMatrix.values[3][3] = 0.0f ;
@@ -58,6 +59,21 @@ public class SceneCalculations {
         return projectionMatrix;
     }
    
+    public static Matrix calcProjOrtoMatrix(int screenWidth, int screenHeight, float fieldOfView, float Zfar, float Znear){
+        float Zm =   Zfar - Znear ;
+        float Zp =   Znear + Zfar ;
+        
+        Matrix projectionMatrix = new Matrix();
+        float[][] values = {{2.0f/(float)Zp, 0.0f, 0.0f, 0.0f},
+                            {0.0f, 2.0f/(float)Zp, 0.0f, 0.0f},
+                            {0.0f, 0.0f, -2.0f/( Zfar - Znear), (- Zp/Zm)},
+                            {0.0f, 0.0f, 0.0f, 1.0f}
+                           };
+        projectionMatrix.values = values;
+        
+        return projectionMatrix;
+    }
+    
     public static Matrix lookAtRot(Vector3 eye, Vector3 center, Vector3 up){
        
         Vector3 z = eye.minus(center );

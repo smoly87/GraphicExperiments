@@ -67,12 +67,22 @@ void main(){
 	float specularI = max(2 * dot(N, L) * dot(V, N) - dot(L, V), 0.0);
 	
 	float visibility = 1.0;
-	vec3 shadowCoordD = shadowCoord.xyz/shadowCoord.w;
-	 shadowCoordD = shadowCoordD* 0.5 + 0.5; 
-    if (    shadowCoordD.z <= texture( shadowTexture, shadowCoordD.xy ).r ){
-          visibility = 0.1;
-    }
+	//vec3 shadowCoordD = shadowCoord.xyz/shadowCoord.w;
 	
+	vec3 ProjCoords = shadowCoord.xyz / shadowCoord.w;
+    vec2 UVCoords;
+    UVCoords.x = 0.5 * ProjCoords.x + 0.5;
+    UVCoords.y = 0.5 * ProjCoords.y + 0.5;
+    float z = 0.5 * ProjCoords.z + 0.5;
+    float Depth = texture(shadowTexture, UVCoords).x;
+   // if (Depth < (z + 0.00001))
+	
+	
+    if (  Depth < (z + 0.00001)){
+          visibility = 0.9;
+    }
+	/*float depthValue = texture(shadowTexture, shadowCoordD.xy).r;
+    outputColor = vec4(vec3(depthValue), 1.0);*/
 	outputColor =  visibility*pointColor * 0.1 +  visibility*pointColor * NdotL * 0.5 +visibility*pointColor*pow(specularI, 10) * 0.4; //;
    // outputColor =pointColor;
 }
