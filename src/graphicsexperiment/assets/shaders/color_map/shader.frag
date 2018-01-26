@@ -9,7 +9,7 @@ struct Vertex{
 };
 in Vertex vert;
 uniform sampler2D fboTexture;
-
+uniform sampler2D shadowTexture;
 void main(){
     // Not really needed, OpenGL does it anyway
   

@@ -56,7 +56,9 @@ public class Scene implements KeyListener{
     protected boolean optDeepTest = true;
     protected boolean optWireFrame = false;
     
-    protected boolean optShadowMapping = true;
+    protected boolean optShadowMapping = false;
+    protected boolean optColorMapping = true;
+    
     protected String assetsFilepath = "/graphicsexperiment/assets/";
     protected String shadersFilePath =  "shaders/"; 
     
@@ -83,11 +85,7 @@ public class Scene implements KeyListener{
     protected HashMap<String, GLSLProgramObject>shadersExtPrograms;
     protected IntBuffer textBuffers;
     
-    protected static final int  TEX_BUFFERS_CNT = 1;
-    protected static final int  FBO_BUFFERS_CNT = 1;
-    
-    protected static final int  FBO_SHADOW = 0;
-    protected static final int  FBO_COLOR = 1;
+   
     
     protected GL4 gl;
     
@@ -97,13 +95,12 @@ public class Scene implements KeyListener{
     protected int depthTextureId;
     
     protected FrameBuffer colorBuf;
+    protected FrameBuffer shadowBuf;
     
     public Scene(GL4 gl) throws LoadResourseException{
         sceneObjects = new HashMap<>();
         shadersExtPrograms = new HashMap<>();
         this.gl = gl;
-        textBuffers = IntBuffer.allocate(TEX_BUFFERS_CNT);
-        FBoBuffers = IntBuffer.allocate(FBO_BUFFERS_CNT);
         
         
     }
@@ -111,6 +108,13 @@ public class Scene implements KeyListener{
     protected void initShadowMapProg() throws LoadResourseException{
         GLSLProgramObject shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + shadersFilePath + "shadow_map/", true, true, false);
         this.shadersExtPrograms.put("ShadowMap", shaderProg);
+        
+        shadowBuf = new FrameBuffer(gl, 1024, 768);
+        shadowBuf.setBufferPurpose(GL.GL_DEPTH_ATTACHMENT);
+        shadowBuf.setTexturePurpose1(GL.GL_DEPTH_COMPONENT32);
+        shadowBuf.setTexturePurpose2(GL_DEPTH_COMPONENT);
+        shadowBuf.setBufferType(GL_FLOAT);
+        shadowBuf.init();
     }
     
     protected void initColorMapProg() throws LoadResourseException{
@@ -118,7 +122,8 @@ public class Scene implements KeyListener{
         this.shadersExtPrograms.put("ColorMap", shaderProg);*/
        colorBuf = new FrameBuffer(gl, 1024, 768);
        colorBuf.setBufferPurpose(GL.GL_COLOR_ATTACHMENT0);
-       colorBuf.setTexturePurpose(GL.GL_RGB);
+       colorBuf.setTexturePurpose1(GL.GL_RGB);
+       colorBuf.setTexturePurpose2(GL.GL_RGB);
        colorBuf.init();
     }
     
@@ -155,10 +160,15 @@ public class Scene implements KeyListener{
         
         calcProjMatrix();
         resetCamera();
+        
+    
+        
+        if(optColorMapping){
+            initColorMapProg();
+        }
+        
         if(optShadowMapping){
             initShadowMapProg();
-            initColorMapProg();
-            createFBO();
         }
         //calcCameraMatrix();
         //createLight(gl3);
@@ -200,34 +210,40 @@ public class Scene implements KeyListener{
         
         if(optWireFrame) gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_LINE );
         
-      
-        
-        if(optShadowMapping){
-          
-           // renderShadowMap();
-          gl.glDisable(gl.GL_DEPTH_TEST);
-           sceneObjects.get("screen").setOptRenderEnabled(false);
-           colorBuf.bindFBO();  
-           gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT);
-           this.renderObjects(gl);
-           colorBuf.unbind();
-           sceneObjects.get("screen").setOptRenderEnabled(true);
-        }
-          if(optDeepTest){
-          gl.glEnable(GL4.GL_CULL_FACE);
+         if(optDeepTest){
+            gl.glEnable(GL4.GL_CULL_FACE);
             gl.glCullFace(GL4.GL_BACK);
             gl.glFrontFace(GL4.GL_CCW);
 
-          gl.glEnable(GL3.GL_DEPTH_TEST);
-           // gl.glDepthMask(true);
-         // gl.glDepthFunc(GL3.GL_LESS);
-           // gl.glDepthRangef(0.0f, 10.0f);
-           // gl.glEnable(GL4.GL_DEPTH_CLAMP);
+            gl.glEnable(GL3.GL_DEPTH_TEST);
         }
-        gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT); //  
-       gl.glEnable(GL4.GL_TEXTURE_CUBE_MAP);
-        this.renderObjects(gl);
         
+        if(optColorMapping){
+          
+           // 
+           //gl.glDisable(gl.GL_DEPTH_TEST);
+           sceneObjects.get("screen").setOptRenderEnabled(false);
+           colorBuf.bindFBO();  
+           gl.glClear(GL4.GL_COLOR_BUFFER_BIT| GL4.GL_DEPTH_BUFFER_BIT);
+           this.renderObjects(gl);
+           colorBuf.unbind();
+           sceneObjects.get("screen").setOptRenderEnabled(true);
+           
+        }
+        
+        
+        
+        if(optShadowMapping){
+            
+            sceneObjects.get("screen").setOptRenderEnabled(false);
+            renderShadowMap();
+            sceneObjects.get("screen").setOptRenderEnabled(true);
+        }
+    
+        gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT); //  
+        gl.glEnable(GL4.GL_TEXTURE_CUBE_MAP);
+        this.renderObjects(gl);
+
         glad.swapBuffers();
      }
     public void calcProjMatrix(){
@@ -243,76 +259,24 @@ public class Scene implements KeyListener{
         
     } 
         
-    protected void createFrameBufferTexture(){
-        gl.glGenTextures(1,  textBuffers);
-        
-        depthTextureId = textBuffers.get(0);
-        gl.glActiveTexture( GL4.GL_TEXTURE2);
-        gl.glBindTexture(GL_TEXTURE_2D, depthTextureId);
-        
-        GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
-        int texLoc = gl.glGetUniformLocation(shadowProg.getProgramId(), "shadowTexture");
-        gl.glUniform1i(texLoc, GL4.GL_TEXTURE2);
-        
-        //TODO: Screen size
-        gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 768, 0, GL_DEPTH_COMPONENT, GL_FLOAT, null);
-        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        //gl.glFramebufferTexture(GL_FRAMEBUFFER, GL.GL_DEPTH_ATTACHMENT, depthTextureId, 0);
-
-        gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
-        gl.glFramebufferTexture2D(GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTextureId, 0);
-     
-        gl.glReadBuffer(GL.GL_NONE);
-        gl.glDrawBuffer(GL.GL_NONE);
-        
-        int status =  gl.glCheckFramebufferStatus(GL_FRAMEBUFFER);
-        if (status != gl.GL_FRAMEBUFFER_COMPLETE) {
-            System.err.println("FrameBuffer Error");
-        }
-    }
-    
-    protected void createFBO(){
-        gl.glGenFramebuffers(1, FBoBuffers);
-        gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
-        createFrameBufferTexture();
-        gl.glBindFramebuffer(GL_FRAMEBUFFER, 0); 
-        /*GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
-        shadowProg.setUniform(gl, "lightMVP", lightMVP);*/
-    }
-    
-    protected void setShadowMapTexture(GLSLProgramObject prog){
-       // GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
-        int texLoc = gl.glGetUniformLocation(prog.getProgramId(), "shadowTexture");
-  
-        gl.glUniform1i(texLoc, GL4.GL_TEXTURE2);
-        
-        gl.glActiveTexture(GL.GL_TEXTURE2);    
-        gl.glBindTexture(GL_TEXTURE_2D, depthTextureId);
-        gl.glActiveTexture(0);
-    }
-     
+   
     
     protected void renderShadowMap(){
-        
-        gl.glBindFramebuffer(GL4.GL_DRAW_FRAMEBUFFER, FBoBuffers.get(0));
-        //gl.glDrawBuffer( FBoBuffers.get(0));
-        /*lightMVP =  getLightMVP();
-        ViewTransformations viewCalcRes =  SceneCalculations.calcViewMatrix(lightMVP, lightPosition);
-        lightMVP = viewCalcRes.getViewMatrix();*/
+ 
         Matrix lightView = getLightMVP();
         lightMVP = new ViewTransformations(lightView, lightPosition).getViewMatrix();
-        
         GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
+       
+        shadowBuf.bindFBO();
+         gl.glClear( GL4.GL_DEPTH_BUFFER_BIT);
+        
         for (Map.Entry<String, SceneObject> entry : sceneObjects.entrySet()) {
            String key = entry.getKey();
            SceneObject sceneObj = entry.getValue();
            execObjShaderProg(gl, sceneObj, key, shadowProg);
         }
         
-        gl.glBindFramebuffer(GL_FRAMEBUFFER,0);
+        shadowBuf.unbind();
        
     }
     
@@ -333,28 +297,30 @@ public class Scene implements KeyListener{
          for (Map.Entry<String, GLSLProgramObject> entry : sceneObj.getShadersPrograms().entrySet()) {
            String key = entry.getKey();
            GLSLProgramObject programObject = entry.getValue();
-          
-           if (objName.equals("screen")){
+          programObject.bind(gl);
+           if (optColorMapping &&  objName.equals("screen")){
                colorBuf.setTexture(programObject);
            }
+           if(optShadowMapping){
+              programObject.setUniform(gl, "lightMVP", lightMVP);
+              shadowBuf.setTexture(programObject);
+           }
+           
            execObjShaderProg(gl, sceneObj, key, programObject);
            
          }
     }
     
     protected void execObjShaderProg(GL4 gl, SceneObject sceneObj, String progName, GLSLProgramObject programObject){
-        programObject.bind(gl);
+        
         sceneObj.setGlobalMatricies(programObject, projectionMatrix, viewMatrix);
         sceneObj.setMaterialPropsToShader(programObject);
         sceneObj.setBodyPropsToShader(programObject);
         // programObject.setUniform(gl, "modelMatrix", modelMatrix);
         setCommonVarsToShaderProgram(gl, programObject);
-        setShadowMapTexture(programObject);
+        //setShadowMapTexture(programObject);
         
-        if(optShadowMapping){
-            programObject.setUniform(gl, "lightMVP", lightMVP);
-        }
-       
+        
         sceneObj.display(gl, programObject, progName);
         programObject.unbind(gl);
     }

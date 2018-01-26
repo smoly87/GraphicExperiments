@@ -23,6 +23,7 @@ in vec4 shadowCoord;
 uniform sampler2D myTexture;
 uniform sampler2D bumpTexture;
 uniform sampler2D shadowTexture;
+uniform sampler2D fboTexture;
 
 uniform vec3 viewDir;
 
@@ -69,17 +70,17 @@ void main(){
 	float visibility = 1.0;
 	//vec3 shadowCoordD = shadowCoord.xyz/shadowCoord.w;
 	
-	vec3 ProjCoords = shadowCoord.xyz / shadowCoord.w;
+	vec3 ProjCoords = shadowCoord.xyz ;
     vec2 UVCoords;
     UVCoords.x = 0.5 * ProjCoords.x + 0.5;
     UVCoords.y = 0.5 * ProjCoords.y + 0.5;
     float z = 0.5 * ProjCoords.z + 0.5;
-    float Depth = texture(shadowTexture, UVCoords).x;
+    float Depth = texture(fboTexture, UVCoords).x;
    // if (Depth < (z + 0.00001))
 	
 	
     if (  Depth < (z + 0.00001)){
-          visibility = 0.9;
+          visibility = 0.4;
     }
 	/*float depthValue = texture(shadowTexture, shadowCoordD.xy).r;
     outputColor = vec4(vec3(depthValue), 1.0);*/

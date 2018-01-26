@@ -80,7 +80,7 @@ public class TestScene extends Scene{
            */
            
            africanHead.init();
-           africanHead.bodyTranlate(new Vector3(0.0f, 0.0f,0.0f));
+           africanHead.bodyTranlate(new Vector3(0.0f, 0.0f,-2.0f));
            sceneObjects.put("head", africanHead);
         
      }
@@ -181,7 +181,7 @@ public class TestScene extends Scene{
          //vecField.init();
        // loadLightVisualiser();
         loadHeadModel();
-         SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "uv_checker large.jpg");
+        SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "uv_checker large.jpg");
          sceneObjects.put("sph", sph);
         // sceneObjects.put("vec_field", vecField);
         //loadQuad();
@@ -203,6 +203,7 @@ public class TestScene extends Scene{
            screenObj.setShadersFilePath("shaders/color_map/");
            screenObj.init();
            screenObj.bodyTranlate(new Vector3(1.0f, 0.0f, -2.0f));
+           screenObj.bodyScale(2.0f);
            sceneObjects.put("screen", screenObj);
      }
      
