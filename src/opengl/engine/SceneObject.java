@@ -768,7 +768,7 @@ public class SceneObject {
     /**
      * @return the shadersPrograms
      */
-    public HashMap<String, GLSLProgramObject> getShadersPrograms() {
+    public LinkedHashMap<String, GLSLProgramObject> getShadersPrograms() {
         return shadersPrograms;
     }
 }

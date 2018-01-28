@@ -15,8 +15,8 @@ import javax.media.opengl.GL4;
  */
 public class RenderPassStandart extends RenderPass{
 
-    public RenderPassStandart(HashMap<String, SceneObject> sceneObjects) {
-        super(sceneObjects);
+    public RenderPassStandart(Scene scene) {
+        super(scene);
     }
 
     @Override

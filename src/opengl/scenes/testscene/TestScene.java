@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package opengl.scenes;
+package opengl.scenes.testscene;
 import engine.exception.LoadResourseException;
 import engine.mesh.Mesh;
 import java.util.Map;
@@ -12,9 +12,12 @@ import opengl.engine.Scene;
 import  javax.media.opengl.GL3;
 import javax.media.opengl.GL4;
 import javax.media.opengl.GLAutoDrawable;
+import math.linearAlgebra.Matrix;
 import math.linearAlgebra.Vector3;
 import math.sceneCalculations.SceneCalculations;
+import math.sceneCalculations.ViewTransformations;
 import opengl.engine.GLSLProgramObject;
+import opengl.engine.RenderPass;
 import opengl.engine.SceneObject;
 import opengl.scenes.objects.CompShaderFiction;
 import opengl.scenes.objects.Cube;
@@ -29,10 +32,34 @@ import opengl.scenes.objects.VectorField;
  * @author Andrey
  */
 public class TestScene extends Scene{
-  
+
+    protected ColorMapPass colorMapPass;
+    
+    protected boolean optColorMap;
     public int[]  fboEnvMap = new int[1];
     protected int t;
     protected double startTime = 0;
+    
+    @Override
+    public void performRenderPasses() {
+       this.performColorBuffRenderPass();
+       this.performStandartRenderPass();
+    }
+
+    protected void performColorBuffRenderPass(){
+        
+        sceneObjects.get("screen").setOptRenderEnabled(false);
+        
+        Matrix lightView = getLightMVP();
+        lightMVP = new ViewTransformations(lightView, lightPosition).getViewMatrix();
+        this.setStandartRenderVariables(colorMapPass);
+        colorMapPass.setViewMatrix(lightMVP);
+        
+       
+        colorMapPass.render();
+
+         sceneObjects.get("screen").setOptRenderEnabled(true);
+    }
 
     public TestScene(GL4 gl) throws LoadResourseException {
         super(gl);
@@ -41,7 +68,8 @@ public class TestScene extends Scene{
         this.cameraPosVector = new Vector3(1.0f, 0.0f, 0.0f);
       
         startTime = System.currentTimeMillis();
-     
+        colorMapPass = new ColorMapPass(this);
+        renderPassStandart = new RenderPassMain(this);
         
     }
    @Override
@@ -180,9 +208,10 @@ public class TestScene extends Scene{
          vecField.setVertexData(mesh.getNormalsCoords());//getNormalsCoords*/
          //vecField.init();
        // loadLightVisualiser();
+       loadHeadModel();
        SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "uv_checker large.jpg");
          sceneObjects.put("sph", sph);
-        loadHeadModel();
+       
        
         // sceneObjects.put("vec_field", vecField);
         //loadQuad();
@@ -201,7 +230,7 @@ public class TestScene extends Scene{
            SceneObject screenObj = new SceneObject(this.gl);
            screenObj = new Quad(this.gl);
            screenObj.setTextureFile("uv_checker large.png");
-           screenObj.setShaderProgName("color_map");
+           screenObj.setShaderProgName("ColorMap");
            screenObj.init();
            screenObj.bodyTranlate(new Vector3(1.0f, 0.0f, -2.0f));
            screenObj.bodyScale(2.0f);

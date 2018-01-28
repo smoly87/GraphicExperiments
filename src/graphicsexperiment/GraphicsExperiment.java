@@ -38,7 +38,7 @@ import math.linearAlgebra.Vector3;
 import math.transformMatricies4.MatrixRotationY;
 import math.transformMatricies4.MatrixUnit;
 import opengl.engine.MainConfig;
-import opengl.scenes.TestScene;
+import opengl.scenes.testscene.TestScene;
 
 import utils.IoReader;
 /**

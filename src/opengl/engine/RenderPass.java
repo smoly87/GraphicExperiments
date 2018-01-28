@@ -18,13 +18,26 @@ import math.linearAlgebra.Vector3;
 public class RenderPass {
     protected HashMap<String, SceneObject> sceneObjects;
     
+    
     protected Matrix viewMatrix;
     protected Matrix projectionMatrix;
     
     protected Vector3 cameraPosVector ;
+    protected GL4 gl;
 
-    public RenderPass(HashMap<String, SceneObject> sceneObjects) {
-        this.sceneObjects = sceneObjects;
+    protected Scene scene;
+    
+    public GL4 getGl() {
+        return gl;
+    }
+
+    public void setGl(GL4 gl) {
+        this.gl = gl;
+    }
+    public RenderPass(Scene scene) {
+        this.scene = scene;
+        this.sceneObjects = scene.sceneObjects;
+        this.gl = scene.getGl();
     }
 
     public Vector3 getCameraPosVector() {
@@ -69,7 +82,8 @@ public class RenderPass {
     } 
     
         
-    protected void render(GL4 gl){
+    public void render(){
+        
          for (Map.Entry<String, SceneObject> entry : sceneObjects.entrySet()) {
            String key = entry.getKey();
            SceneObject sceneObj = entry.getValue();
@@ -82,7 +96,7 @@ public class RenderPass {
     }
     
     protected GLSLProgramObject getProgramByObj(SceneObject sceneObj){
-        return sceneObj.getShadersPrograms().get("Main");
+        return (GLSLProgramObject)sceneObj.getShadersPrograms().values().toArray()[0];
     }
     
     protected void renderObject(GL4 gl, SceneObject sceneObj, String objName){   
