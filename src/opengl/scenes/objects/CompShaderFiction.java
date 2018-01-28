@@ -15,6 +15,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import javax.media.opengl.GL4;
 import opengl.engine.GLSLProgramObject;
+import opengl.engine.MainConfig;
 import opengl.engine.SceneObject;
 
 /**
@@ -47,8 +48,9 @@ public class CompShaderFiction extends Quad{
     @Override
     protected void buildShaders() throws LoadResourseException {
          GLSLProgramObject shaderProg = new GLSLProgramObject(gl);
-         String shadersPath = assetsFilepath + shadersFilePath;
-         shaderProg.attachShader(gl, shadersPath+"shader.comp", gl.GL_COMPUTE_SHADER);
+         String shadersFilePath = MainConfig.getInstance().getShadersFilePath();
+
+         shaderProg.attachShader(gl, shadersFilePath+"Main/shader.comp", gl.GL_COMPUTE_SHADER);
          shaderProg.initializeProgram(gl, true);
          this.computeShaderProg = shaderProg;
          //this.shadersPrograms.put("ComputeShader", shaderProg) ;

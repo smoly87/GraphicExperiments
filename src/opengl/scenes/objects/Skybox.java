@@ -23,7 +23,7 @@ public class Skybox extends Cube{
 
     public Skybox(GL4 gl) {
         super(gl);
-        this.shadersFilePath += "cubemap/";
+        this.shaderProgName = "cubemap";
         // this.optVeretexTextures = false;
     }
     

@@ -56,8 +56,8 @@ public class Scene implements KeyListener{
     protected boolean optDeepTest = true;
     protected boolean optWireFrame = false;
     
-    protected boolean optShadowMapping = false;
-    protected boolean optColorMapping = true;
+    protected boolean optShadowMapping = true;
+    protected boolean optColorMapping = false;
     
     protected String assetsFilepath = "/graphicsexperiment/assets/";
     protected String shadersFilePath =  "shaders/"; 
@@ -85,7 +85,8 @@ public class Scene implements KeyListener{
     protected HashMap<String, GLSLProgramObject>shadersExtPrograms;
     protected IntBuffer textBuffers;
     
-   
+    protected ShadersStore shadersStrore;
+    protected MainConfig config;
     
     protected GL4 gl;
     
@@ -97,23 +98,42 @@ public class Scene implements KeyListener{
     protected FrameBuffer colorBuf;
     protected FrameBuffer shadowBuf;
     
+    protected RenderPassStandart renderPassStandart;
+    
     public Scene(GL4 gl) throws LoadResourseException{
         sceneObjects = new HashMap<>();
         shadersExtPrograms = new HashMap<>();
         this.gl = gl;
-        
+        shadersStrore = ShadersStore.getInstance();
+        config = MainConfig.getInstance();
+        renderPassStandart = new RenderPassStandart(sceneObjects);
         
     }
     
+    protected void initShadowMapProgNew() throws LoadResourseException{
+        GLSLProgramObject shaderProg  = shadersStrore.getShaderProgram("ShadowMap", false);
+        this.shadersExtPrograms.put("ShadowMap", shaderProg);
+        
+        shadowBuf = new FrameBuffer(gl, 1024, 768);
+        shadowBuf.setBufferPurpose(GL.GL_COLOR_ATTACHMENT0);
+        shadowBuf.setTexturePurpose1(GL.GL_RGB);
+        shadowBuf.setTexturePurpose2(GL.GL_RGB);
+        //shadowBuf.setBufferType(GL_FLOAT);
+        shadowBuf.setUseDepthRenderBuffer(true);
+        shadowBuf.setUseDrawBuffer(true);
+        shadowBuf.init();
+    }
     protected void initShadowMapProg() throws LoadResourseException{
-        GLSLProgramObject shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + shadersFilePath + "shadow_map/", true, true, false);
+        GLSLProgramObject shaderProg  = shadersStrore.getShaderProgram("ShadowMap", false);
         this.shadersExtPrograms.put("ShadowMap", shaderProg);
         
         shadowBuf = new FrameBuffer(gl, 1024, 768);
         shadowBuf.setBufferPurpose(GL.GL_DEPTH_ATTACHMENT);
-        shadowBuf.setTexturePurpose1(GL.GL_DEPTH_COMPONENT32);
+        shadowBuf.setTexturePurpose1(GL.GL_DEPTH_ATTACHMENT);
         shadowBuf.setTexturePurpose2(GL_DEPTH_COMPONENT);
-        shadowBuf.setBufferType(GL_FLOAT);
+        shadowBuf.setTextureValueType(GL_FLOAT);
+        shadowBuf.setUseDepthRenderBuffer(false);
+        shadowBuf.setUseDrawBuffer(false);
         shadowBuf.init();
     }
     
@@ -124,7 +144,10 @@ public class Scene implements KeyListener{
        colorBuf.setBufferPurpose(GL.GL_COLOR_ATTACHMENT0);
        colorBuf.setTexturePurpose1(GL.GL_RGB);
        colorBuf.setTexturePurpose2(GL.GL_RGB);
-       colorBuf.init();
+       colorBuf.setUseDepthRenderBuffer(true); 
+       colorBuf.setUseDrawBuffer(true);
+       colorBuf.setTextureValueType(GL.GL_UNSIGNED_BYTE);
+      colorBuf.init();
     }
     
     /**
@@ -204,7 +227,7 @@ public class Scene implements KeyListener{
     }
     
     
-     public void display(GLAutoDrawable glad){
+    public void display(GLAutoDrawable glad){
         GL4 gl = glad.getGL().getGL4();
         gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         
@@ -224,7 +247,9 @@ public class Scene implements KeyListener{
            //gl.glDisable(gl.GL_DEPTH_TEST);
            sceneObjects.get("screen").setOptRenderEnabled(false);
            colorBuf.bindFBO();  
-           gl.glClear(GL4.GL_COLOR_BUFFER_BIT| GL4.GL_DEPTH_BUFFER_BIT);
+           gl.glClear( GL4.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT);
+       
+           
            this.renderObjects(gl);
            colorBuf.unbind();
            sceneObjects.get("screen").setOptRenderEnabled(true);
@@ -232,17 +257,22 @@ public class Scene implements KeyListener{
         }
         
         
-        
+       
         if(optShadowMapping){
             
             sceneObjects.get("screen").setOptRenderEnabled(false);
             renderShadowMap();
             sceneObjects.get("screen").setOptRenderEnabled(true);
         }
-    
-        gl.glClear(GL4.GL_COLOR_BUFFER_BIT | GL4.GL_DEPTH_BUFFER_BIT); //  
+   
+        gl.glClear(GL4.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT); //  
         gl.glEnable(GL4.GL_TEXTURE_CUBE_MAP);
-        this.renderObjects(gl);
+        
+        renderPassStandart.setProjectionMatrix(projectionMatrix);
+        renderPassStandart.setViewMatrix(viewMatrix);
+        renderPassStandart.setLightPosition(lightPosition);
+        renderPassStandart.setCameraPosVector(cameraPosVector);
+        renderPassStandart.render(gl);
 
         glad.swapBuffers();
      }
@@ -268,16 +298,24 @@ public class Scene implements KeyListener{
         GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
        
         shadowBuf.bindFBO();
-         gl.glClear( GL4.GL_DEPTH_BUFFER_BIT);
+        
+        gl.glClear(GL4.GL_COLOR_BUFFER_BIT| GL4.GL_DEPTH_BUFFER_BIT);
+       
+         
         
         for (Map.Entry<String, SceneObject> entry : sceneObjects.entrySet()) {
-           String key = entry.getKey();
+           String key = entry.getKey(); 
            SceneObject sceneObj = entry.getValue();
+           if(!sceneObj.isOptRenderEnabled()) continue;
+           shadowProg.bind(gl);
+             shadowProg.setUniform(gl, "lightMVP", lightMVP);
+           
+           
            execObjShaderProg(gl, sceneObj, key, shadowProg);
         }
         
         shadowBuf.unbind();
-       
+      // shadowProg.unbind(gl);
     }
     
     protected void renderObjects(GL4 gl){

@@ -78,14 +78,13 @@ public class SceneObject {
     protected final int BUFFER_NORMALS_COORDS = 4;
     protected final int BUFFER_VETREX_COLORS = 5;
     protected final int BUFFER_TANGET_COORDS = 6;
+
+    protected String modelsFilePath; 
+    protected String shaderProgName = "Main";
+    protected ShadersStore shadersStore;
     
-    protected String assetsFilepath = "/graphicsexperiment/assets/";
-    protected String shadersFilePath =  "shaders/"; 
-    protected String modelsFilePath = assetsFilepath + "models/"; 
     protected String textureFile; 
     protected String modelFile;
-    
-   
     
     protected int modelMatrixId;
     protected int textureId;
@@ -112,6 +111,15 @@ public class SceneObject {
     protected String bumpMappingTextureFile;
     
     protected boolean optRenderEnabled = true;
+    
+    
+    public String getShaderProgName() {
+        return shaderProgName;
+    }
+
+    public void setShaderProgName(String shaderProgName) {
+        this.shaderProgName = shaderProgName;
+    }
 
     public boolean isOptRenderEnabled() {
         return optRenderEnabled;
@@ -157,7 +165,7 @@ public class SceneObject {
         objRotVec = new Vector(4);
         objTranslateVec = new Vector(4);
         objScaleVec = new Vector(new float[]{1.0f, 1.0f, 1.0f, 1.0f});
-        
+        this.modelsFilePath = MainConfig.getInstance().getModelsFilePath();
     }
     
     protected void setTextureToShader( GLSLProgramObject shaderProgram, Texture tex, String samplerName, int ind){
@@ -192,28 +200,15 @@ public class SceneObject {
   
     
     public void setGlobalMatricies(GLSLProgramObject programObject, Matrix projectionMatrix, Matrix viewMatrix){
-       /* MatrixChainOperations mtrChain = new MatrixChainOperations();
-        Matrix modelMatrix = calcModelMatrix();
-        
-        mtrChain.add(projectionMatrix); 
-        mtrChain.add(viewMatrix);
-        mtrChain.add(modelMatrix);
-        
-        Matrix MVP = mtrChain.getResult();
 
-        MatrixChainOperations mtrChainNorm = new MatrixChainOperations();
-        mtrChainNorm.add(projectionMatrix); 
-        mtrChainNorm.add(viewMatrix);
-        mtrChainNorm.add(modelMatrix);
-        Matrix MInv = mtrChainNorm.getResult();*/
- 
-        //Для каждого объекта матрица для преобр. нормалей разная, также как и MVP - VP общая для всех
+
+         programObject.setUniform(gl, "viewMatrix", viewMatrix);
+         programObject.setUniform(gl, "projectionMatrix", projectionMatrix);
          Matrix modelMatrix = getModelMatrix();
          Matrix viewModel = viewMatrix.multiply(modelMatrix);
          programObject.setUniform(gl, "normalMatrix", (viewModel.inverse()));//.transpose()
-          programObject.setUniform(gl, "MVP", projectionMatrix.multiply(viewModel)) ;  
-        /*programObject.setUniform(gl, "normTransformMatrix", MInv);
-        programObject.setUniform(gl, "MVPMatrix", MVP);*/
+         programObject.setUniform(gl, "MVP", projectionMatrix.multiply(viewModel)) ;  
+
     }
     
     protected void render(GL4 gl){
@@ -508,12 +503,13 @@ public class SceneObject {
     }
     
     protected void buildShaders() throws LoadResourseException{
-       GLSLProgramObject shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + shadersFilePath, true, true, optLoadGeomShader);
-       this.shadersPrograms.put("Main", shaderProg);
+       
+       this.shadersPrograms.put(shaderProgName, ShadersStore.getInstance().getShaderProgram(shaderProgName, optLoadGeomShader));
     }
     
     public void addShaderProgram(String folder, boolean geometryShaderLoad, String progName) throws LoadResourseException{
-        GLSLProgramObject shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + folder, true, true, geometryShaderLoad);
+        //GLSLProgramObject shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + folder, true, true, geometryShaderLoad);
+        GLSLProgramObject shaderProg = shadersStore.getShaderProgram(progName, optLoadGeomShader);
         this.shadersPrograms.put(progName, shaderProg);
     }
     
@@ -766,33 +762,8 @@ public class SceneObject {
         this.optLoadGeomShader = optLoadGeomShader;
     }
 
-    /**
-     * @return the shadersFilePath
-     */
-    public String getShadersFilePath() {
-        return shadersFilePath;
-    }
+  
 
-    /**
-     * @param shadersFilePath the shadersFilePath to set
-     */
-    public void setShadersFilePath(String shadersFilePath) {
-        this.shadersFilePath = shadersFilePath;
-    }
-
-    /**
-     * @return the assetsFilepath
-     */
-    public String getAssetsFilepath() {
-        return assetsFilepath;
-    }
-
-    /**
-     * @param assetsFilepath the assetsFilepath to set
-     */
-    public void setAssetsFilepath(String assetsFilepath) {
-        this.assetsFilepath = assetsFilepath;
-    }
 
     /**
      * @return the shadersPrograms

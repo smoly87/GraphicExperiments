@@ -40,7 +40,45 @@ public class FrameBuffer {
     protected int height;
     protected int texturePurpose1;
     protected int texturePurpose2;
+    protected boolean useDepthRenderBuffer;
+    protected boolean useDrawBuffer;
+    protected int textureValueType ;
 
+    protected boolean useStencilBuffer;
+
+    public boolean isUseStencilBuffer() {
+        return useStencilBuffer;
+    }
+
+    public void setUseStencilBuffer(boolean useStencilBuffer) {
+        this.useStencilBuffer = useStencilBuffer;
+    }
+    
+    public int getTextureValueType() {
+        return textureValueType;
+    }
+
+    public void setTextureValueType(int textureValueType) {
+        this.textureValueType = textureValueType;
+    }
+
+    public boolean isUseDrawBuffer() {
+        return useDrawBuffer;
+    }
+
+    public void setUseDrawBuffer(boolean useDrawBuffer) {
+        this.useDrawBuffer = useDrawBuffer;
+    }
+
+    public boolean isUseDepthRenderBuffer() {
+        return useDepthRenderBuffer;
+    }
+
+    public void setUseDepthRenderBuffer(boolean useDepthRenderBuffer) {
+        this.useDepthRenderBuffer = useDepthRenderBuffer;
+    }
+
+    
     public int getTexturePurpose2() {
         return texturePurpose2;
     }
@@ -110,14 +148,21 @@ public class FrameBuffer {
         /*int texLoc = gl.glGetUniformLocation(shadowProg.getProgramId(), "fboTexture");
         gl.glUniform1i(texLoc, GL4.GL_TEXTURE2);*/
         //TODO: Screen size
-        gl.glTexImage2D(GL_TEXTURE_2D, 0, texturePurpose1, 1024, 768, 0, texturePurpose2, GL.GL_UNSIGNED_BYTE, null);
+        gl.glTexImage2D(GL_TEXTURE_2D, 0, texturePurpose1, 1024, 768, 0, texturePurpose2, textureValueType, null);
+        
 
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-       // gl.glTexParameteri(GL_TEXTURE_2D, GL2ES2.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_R_TO_TEXTURE);
+        
+        /*gl.glTexParameteri(GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_FUNC, gl.GL_GREATER);
+	gl.glTexParameteri(GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_MODE, gl.GL_COMPARE_REF_TO_TEXTURE);
+        */
+       // gl.glTexParameteri(GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_R_TO_TEXTURE);
         //gl.glFramebufferTexture(GL_FRAMEBUFFER, GL.GL_DEPTH_ATTACHMENT, depthTextureId, 0);
+      /*  gl.glTexParameteri( GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_MODE, gl.GL_NONE );
+gl.glTexParameteri( GL_TEXTURE_2D, gl.GL_DEPTH_TEXTURE_MODE, gl.GL_LUMINANCE );*/
         return depthTextureId;
     }
     
@@ -125,26 +170,57 @@ public class FrameBuffer {
         
         depthTextureId = createFboTexture();
         gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
-        gl.glFramebufferTexture2D(GL_FRAMEBUFFER, bufferPurpose, GL_TEXTURE_2D, depthTextureId, 0);
+        gl.glFramebufferTexture2D(GL_FRAMEBUFFER, texturePurpose1, GL_TEXTURE_2D, depthTextureId, 0);
+        /// gl.glFramebufferTexture2D(GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, depthTextureId, 0);
         
-        int rboId = addRenderBuffer();
-        gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, gl.GL_RENDERBUFFER, rboId);
-        
+       // gl.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_DEPTH_COMPONENT, 1024, 768);
+       /* gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER,       // 1. fbo target: GL_FRAMEBUFFER
+                          gl.GL_DEPTH_ATTACHMENT,  // 2. depth attachment point
+                          gl.GL_RENDERBUFFER,      // 3. rbo target: GL_RENDERBUFFER
+                          rboDepthId);*/
+        if(useDepthRenderBuffer){
+            int rboId = addRenderBuffer();
+            gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, gl.GL_RENDERBUFFER, rboId);
+        }
+         if(useStencilBuffer){
+            int rboId = addStencilBuffer();
+            gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, gl.GL_DEPTH_STENCIL_ATTACHMENT, gl.GL_RENDERBUFFER, rboId);
+        }
+         
+         addRenderShaBuffer();
         gl.glReadBuffer(GL.GL_NONE);
-        gl.glDrawBuffer(FBoBuffers.get(0));
+        gl.glDrawBuffer(useDrawBuffer ?   FBoBuffers.get(0): GL.GL_NONE);//gl.GL_COLOR_ATTACHMENT0
         
         int status =  gl.glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != gl.GL_FRAMEBUFFER_COMPLETE) {
-            System.err.println("FrameBuffer Error");
+            System.err.println("FrameBuffer Error:" + gl.glGetString(gl.glGetError()));
+            
         }
     }
     
+    
+    public int addStencilBuffer(){
+        gl.glGenRenderbuffers(1, RBoBuffers);
+        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, RBoBuffers.get(0));
+        gl.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_DEPTH24_STENCIL8, width, height);
+        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, 0);
+        return RBoBuffers.get(0);
+    }
     
     public int addRenderBuffer(){
         gl.glGenRenderbuffers(1, RBoBuffers);
         gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, RBoBuffers.get(0));
         gl.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_DEPTH_COMPONENT, width, height);
         gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, 0);
+        return RBoBuffers.get(0);
+    }
+    
+      public int addRenderShaBuffer(){
+        gl.glGenRenderbuffers(1, RBoBuffers);
+        gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, RBoBuffers.get(0));
+gl.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_RGB, 1024, 768);
+// Attach the renderbuffer
+gl.glFramebufferRenderbuffer(gl.GL_DRAW_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_RENDERBUFFER, RBoBuffers.get(0));
         return RBoBuffers.get(0);
     }
     
@@ -160,10 +236,10 @@ public class FrameBuffer {
     public void setTexture(GLSLProgramObject prog){
        // GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
         int texLoc = gl.glGetUniformLocation(prog.getProgramId(), "fboTexture");
-  
-        gl.glUniform1i(texLoc, GL4.GL_TEXTURE0);
+       
+        gl.glUniform1i(texLoc, GL4.GL_TEXTURE2);
             gl.glEnable(GL_TEXTURE_2D);  
-        gl.glActiveTexture(GL.GL_TEXTURE0);    
+        gl.glActiveTexture(GL.GL_TEXTURE2);    
         gl.glBindTexture(GL_TEXTURE_2D, depthTextureId);
         gl.glActiveTexture(0);
     }

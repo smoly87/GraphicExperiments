@@ -60,6 +60,7 @@ vec3 calcNewNormalApproach2(){
 
 void main(){
     vec4 pointColor = texture(myTexture, vert.textureUV).rgba;
+
 	vec3 N = normalize(vert.normal);//calcNewNormalApproach2();//// calcNewNormal();//
 	vec3 L = normalize(light_position);
 	vec3 V = vec3(0, 0 ,1);

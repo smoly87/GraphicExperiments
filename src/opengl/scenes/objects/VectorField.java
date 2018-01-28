@@ -34,7 +34,7 @@ public class VectorField extends SceneObject{
         this.optVeretexTextures = false;
         this.optVertexNormals = false;
         this.optLoadTexture = false;
-        this.setShadersFilePath("shaders/vector_field/");
+        this.setShaderProgName("vector_field");
         this.vertexes = new LinkedList<>();
         
     }

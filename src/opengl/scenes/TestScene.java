@@ -36,7 +36,7 @@ public class TestScene extends Scene{
 
     public TestScene(GL4 gl) throws LoadResourseException {
         super(gl);
-        this.lightPosition = new Vector3(0.0f, 0.0f, 3.0f);
+        this.lightPosition = new Vector3(3.0f, 0.0f, 3.0f);
         this.camRotVec = new Vector3();
         this.cameraPosVector = new Vector3(1.0f, 0.0f, 0.0f);
       
@@ -180,9 +180,10 @@ public class TestScene extends Scene{
          vecField.setVertexData(mesh.getNormalsCoords());//getNormalsCoords*/
          //vecField.init();
        // loadLightVisualiser();
-        loadHeadModel();
-        SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "uv_checker large.jpg");
+       SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "uv_checker large.jpg");
          sceneObjects.put("sph", sph);
+        loadHeadModel();
+       
         // sceneObjects.put("vec_field", vecField);
         //loadQuad();
         initScreen();
@@ -200,7 +201,7 @@ public class TestScene extends Scene{
            SceneObject screenObj = new SceneObject(this.gl);
            screenObj = new Quad(this.gl);
            screenObj.setTextureFile("uv_checker large.png");
-           screenObj.setShadersFilePath("shaders/color_map/");
+           screenObj.setShaderProgName("color_map");
            screenObj.init();
            screenObj.bodyTranlate(new Vector3(1.0f, 0.0f, -2.0f));
            screenObj.bodyScale(2.0f);

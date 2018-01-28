@@ -6,8 +6,9 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 out vec4 pos;
-
+uniform mat4 MVP;
 void main(){
-    gl_Position =  projectionMatrix*lightMVP *modelMatrix* position; 
+     gl_Position =  projectionMatrix*lightMVP *modelMatrix* position; 
     pos = gl_Position;
+
 }

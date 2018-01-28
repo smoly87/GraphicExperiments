@@ -37,6 +37,7 @@ import math.linearAlgebra.Matrix44;
 import math.linearAlgebra.Vector3;
 import math.transformMatricies4.MatrixRotationY;
 import math.transformMatricies4.MatrixUnit;
+import opengl.engine.MainConfig;
 import opengl.scenes.TestScene;
 
 import utils.IoReader;
@@ -48,12 +49,12 @@ public class GraphicsExperiment  implements GLEventListener {
 
     
 
-    public static int imageWidth = 1024;
-    public static int imageHeight = 768;
+ 
     private GLCanvas canvas;
        
     protected FPSAnimator animator;
     protected TestScene scene;
+    protected MainConfig config;
     /**
      * @param args the command line arguments
      */
@@ -79,6 +80,7 @@ public class GraphicsExperiment  implements GLEventListener {
   
     
     public GraphicsExperiment() {
+        config = MainConfig.getInstance();
         initGL();
       
     }
@@ -90,7 +92,7 @@ public class GraphicsExperiment  implements GLEventListener {
 
         canvas = new GLCanvas(capabilities);
 
-        canvas.setSize(imageWidth, imageHeight);
+        canvas.setSize(config.getScreenWidth(), config.getScreenHeight());
         canvas.addGLEventListener(this);
         
     }
@@ -102,6 +104,9 @@ public class GraphicsExperiment  implements GLEventListener {
         canvas.setAutoSwapBufferMode(false);
 
         GL4 gl = glad.getGL().getGL4();
+        
+        config.setGl(gl);
+        
         try {
             scene = new TestScene(gl);
             // scene.init();
@@ -109,8 +114,8 @@ public class GraphicsExperiment  implements GLEventListener {
             Logger.getLogger(GraphicsExperiment.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        scene.setScreenWidth(imageWidth);
-        scene.setScreenHeight(imageHeight);
+        scene.setScreenWidth(config.getScreenWidth());
+        scene.setScreenHeight(config.getScreenHeight());
         scene.setFieldOfView(30.0f);
         try {
             scene.init();

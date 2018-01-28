@@ -9,9 +9,10 @@ struct Vertex{
 };
 in Vertex vert;
 uniform sampler2D fboTexture;
-uniform sampler2D shadowTexture;
+
 void main(){
     // Not really needed, OpenGL does it anyway
   
-	pointColor =texture(fboTexture, vert.textureUV).rgba;//vec4(1.0,1.0,1.0,1.0 ) ;//
+	pointColor =vec4(1.0,texture(fboTexture, vert.textureUV).r/100,1.0,1.0 ) ;//
+	//pointColor = texture(fboTexture, vert.textureUV).rgba;//v
 }
