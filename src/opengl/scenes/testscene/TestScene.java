@@ -34,6 +34,7 @@ import opengl.scenes.objects.VectorField;
 public class TestScene extends Scene{
 
     protected ColorMapPass colorMapPass;
+    protected DepthMapPass depthMapPass;
     
     protected boolean optColorMap;
     public int[]  fboEnvMap = new int[1];
@@ -42,10 +43,25 @@ public class TestScene extends Scene{
     
     @Override
     public void performRenderPasses() {
-       this.performColorBuffRenderPass();
+       if(optColorMapping)this.performColorBuffRenderPass();
+       
+       if(optShadowMapping)this.performDepthBuffRenderPass();
        this.performStandartRenderPass();
     }
 
+    protected void performDepthBuffRenderPass(){
+        sceneObjects.get("screen").setOptRenderEnabled(false);
+ gl.glEnable(GL3.GL_DEPTH_TEST);
+        Matrix lightView = getLightMVP();
+        lightMVP = new ViewTransformations(lightView, lightPosition).getViewMatrix();
+        this.setStandartRenderVariables(depthMapPass);
+        depthMapPass.setViewMatrix(lightMVP);
+
+        depthMapPass.render();
+
+        sceneObjects.get("screen").setOptRenderEnabled(true);
+    }
+    
     protected void performColorBuffRenderPass(){
         
         sceneObjects.get("screen").setOptRenderEnabled(false);
@@ -68,8 +84,17 @@ public class TestScene extends Scene{
         this.cameraPosVector = new Vector3(1.0f, 0.0f, 0.0f);
       
         startTime = System.currentTimeMillis();
+        
+        optColorMapping = false;
+        optShadowMapping = true;
+        
         colorMapPass = new ColorMapPass(this);
+        depthMapPass = new DepthMapPass(this);
         renderPassStandart = new RenderPassMain(this);
+        RenderPassMain mainRender = (RenderPassMain)renderPassStandart;
+        
+        mainRender.setOptColorMapping(optColorMapping);
+        mainRender.setOptShadowMapping(optShadowMapping);
         
     }
    @Override

@@ -19,13 +19,32 @@ import opengl.engine.SceneObject;
  */
 public class RenderPassMain extends RenderPassStandart{
 
+    protected boolean optShadowMapping ;
+
+    public boolean isOptShadowMapping() {
+        return optShadowMapping;
+    }
+
+    public void setOptShadowMapping(boolean optShadowMapping) {
+        this.optShadowMapping = optShadowMapping;
+    }
+
+    public boolean isOptColorMapping() {
+        return optColorMapping;
+    }
+
+    public void setOptColorMapping(boolean colorMapping) {
+        this.optColorMapping = colorMapping;
+    }
+    protected boolean optColorMapping ;
+    
     public RenderPassMain(Scene scene) {
         super(scene);
     }
 
     @Override
     protected void renderObject(GL4 gl, SceneObject sceneObj, String objName) {
-        if (objName.equals("screen")){
+        if (optColorMapping && objName.equals("screen")){
             FrameBuffer colorBuf = scene.getFrameBuffersStorage().get("ColorBuffer");
             GLSLProgramObject programObject = (GLSLProgramObject)sceneObj.getShadersPrograms().values().toArray()[0];
             
@@ -37,7 +56,18 @@ public class RenderPassMain extends RenderPassStandart{
             programObject.unbind(gl);
             return;
         }
-        
+        if (optShadowMapping && objName.equals("screen")){
+            FrameBuffer depthBuff = scene.getFrameBuffersStorage().get("DepthBuffer");
+            GLSLProgramObject programObject = (GLSLProgramObject)sceneObj.getShadersPrograms().values().toArray()[0];
+            
+            programObject.bind(gl);
+
+            depthBuff.setTexture(programObject);
+            execObjShaderProg(gl, sceneObj, "Main", programObject);
+            
+            programObject.unbind(gl);
+            return;
+        }
         super.renderObject(gl, sceneObj, objName); 
     }
     

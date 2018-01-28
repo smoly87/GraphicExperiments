@@ -1,5 +1,5 @@
 #version 330
-layout(location = 0) out vec3 pointColor;
+layout(location = 0) out vec4 pointColor;
 
 struct Vertex{
    vec4 position;
@@ -12,7 +12,7 @@ uniform sampler2D fboTexture;
 
 void main(){
     // Not really needed, OpenGL does it anyway
-  
-	//pointColor =vec4(1.0,texture(fboTexture, vert.textureUV).r/100,1.0,1.0 ) ;//
-	pointColor = texture(fboTexture, vert.textureUV).rgb;//v
+    float v = texture(fboTexture, vert.textureUV).r/1.2;
+	pointColor =vec4(v,v,v,1.0 ) ;//
+	//pointColor = texture(fboTexture, vert.textureUV).rgb;//v
 }

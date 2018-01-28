@@ -36,6 +36,7 @@ public class ColorMapPass extends RenderPass{
     }
     
     protected FrameBuffer createColorBuffer() throws LoadResourseException{
+          System.out.println("Prepare color buffer");
        FrameBuffer colorBuffer = new FrameBuffer(scene.getGl(), 1024, 768);
        colorBuffer.setBufferTexturePurpose(GL.GL_COLOR_ATTACHMENT0);
        colorBuffer.setTexturePurpose1(GL.GL_RGB);

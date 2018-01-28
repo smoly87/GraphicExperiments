@@ -120,34 +120,7 @@ public class Scene implements KeyListener{
         renderPassStandart = new RenderPassStandart(this);
         
     }
-    
-    protected void initShadowMapProgNew() throws LoadResourseException{
-        GLSLProgramObject shaderProg  = shadersStrore.getShaderProgram("ShadowMap", false);
-        this.shadersExtPrograms.put("ShadowMap", shaderProg);
-        
-        shadowBuf = new FrameBuffer(gl, 1024, 768);
-        shadowBuf.setBufferTexturePurpose(GL.GL_COLOR_ATTACHMENT0);
-        shadowBuf.setTexturePurpose1(GL.GL_RGB);
-        shadowBuf.setTexturePurpose2(GL.GL_RGB);
-        //shadowBuf.setBufferType(GL_FLOAT);
-        shadowBuf.setUseDepthRenderBuffer(true);
-        shadowBuf.setUseDrawBuffer(true);
-        shadowBuf.init();
-    }
-    protected void initShadowMapProg() throws LoadResourseException{
-        GLSLProgramObject shaderProg  = shadersStrore.getShaderProgram("ShadowMap", false);
-        this.shadersExtPrograms.put("ShadowMap", shaderProg);
-        
-        shadowBuf = new FrameBuffer(gl, 1024, 768);
-        shadowBuf.setBufferTexturePurpose(GL.GL_DEPTH_ATTACHMENT);
-        shadowBuf.setTexturePurpose1(GL.GL_DEPTH_ATTACHMENT);
-        shadowBuf.setTexturePurpose2(GL_DEPTH_COMPONENT);
-        shadowBuf.setTextureValueType(GL_FLOAT);
-        shadowBuf.setUseDepthRenderBuffer(false);
-        shadowBuf.setUseDrawBuffer(false);
-        shadowBuf.init();
-    }
-    
+
 
     /**
      * @return the fieldOfView
@@ -185,7 +158,7 @@ public class Scene implements KeyListener{
 
         
         if(optShadowMapping){
-            initShadowMapProg();
+        //    initShadowMapProg();
         }
         //calcCameraMatrix();
         //createLight(gl3);

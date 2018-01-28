@@ -8,7 +8,7 @@ uniform mat4 projectionMatrix;
 out vec4 pos;
 uniform mat4 MVP;
 void main(){
-     gl_Position =  projectionMatrix*lightMVP *modelMatrix* position; 
+     gl_Position =  MVP* position; 
     pos = gl_Position;
 
 }

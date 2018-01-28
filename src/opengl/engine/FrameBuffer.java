@@ -19,6 +19,8 @@ import static javax.media.opengl.GL.GL_TEXTURE_WRAP_T;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GL2ES2;
 import static javax.media.opengl.GL2ES2.GL_DEPTH_COMPONENT;
+import javax.media.opengl.GL2ES3;
+import javax.media.opengl.GL2GL3;
 import javax.media.opengl.GL4;
 
 
@@ -45,6 +47,15 @@ public class FrameBuffer {
     protected int textureValueType ;
 
     protected boolean useStencilBuffer;
+    protected boolean useColorRenderBuffer;
+
+    public boolean isUseColorRenderBuffer() {
+        return useColorRenderBuffer;
+    }
+
+    public void setUseColorRenderBuffer(boolean useColorRenderBuffer) {
+        this.useColorRenderBuffer = useColorRenderBuffer;
+    }
 
     public boolean isUseStencilBuffer() {
         return useStencilBuffer;
@@ -147,19 +158,25 @@ public class FrameBuffer {
 
         gl.glTexImage2D(GL_TEXTURE_2D, 0, texturePurpose1, width, height, 0, texturePurpose2, textureValueType, null);
         
-
+//gl.glTexStorage2D(GL4.GL_TEXTURE_2D, 1, GL4.GL_DEPTH_COMPONENT32F, width, height);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         
-        /*gl.glTexParameteri(GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_FUNC, gl.GL_GREATER);
-	gl.glTexParameteri(GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_MODE, gl.GL_COMPARE_REF_TO_TEXTURE);
-        */
+       /* gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL2GL3.GL_CLAMP_TO_BORDER);
+        gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL2GL3.GL_CLAMP_TO_BORDER);*/
+        
+        //gl.glTexParameteri(GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_FUNC, gl.GL_LEQUAL);
+	//gl.glTexParameteri(GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_MODE, gl.GL_COMPARE_REF_TO_TEXTURE);
+        
        // gl.glTexParameteri(GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_MODE, GL2.GL_COMPARE_R_TO_TEXTURE);
         //gl.glFramebufferTexture(GL_FRAMEBUFFER, GL.GL_DEPTH_ATTACHMENT, depthTextureId, 0);
       /*  gl.glTexParameteri( GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_MODE, gl.GL_NONE );
 gl.glTexParameteri( GL_TEXTURE_2D, gl.GL_DEPTH_TEXTURE_MODE, gl.GL_LUMINANCE );*/
+      
+      /*gl.glTexParameteri( GL_TEXTURE_2D, GL2ES2.GL_TEXTURE_COMPARE_MODE, GL.GL_NONE );
+gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*/
       gl.glBindTexture(GL_TEXTURE_2D,0);
         return depthTextureId;
     }
@@ -177,19 +194,29 @@ gl.glTexParameteri( GL_TEXTURE_2D, gl.GL_DEPTH_TEXTURE_MODE, gl.GL_LUMINANCE );*
             int rboId = addRenderDepthBuffer();
             gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, gl.GL_DEPTH_ATTACHMENT, gl.GL_RENDERBUFFER, rboId);
         }
-         if(useStencilBuffer){
+        
+        if(useStencilBuffer){
             int rboId = addStencilBuffer();
             gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, gl.GL_DEPTH_STENCIL_ATTACHMENT, gl.GL_RENDERBUFFER, rboId);
         }
          
-         //
+        if(useColorRenderBuffer){
+             int rboId = addRenderColorBuffer();//GL2ES3.GL_DRAW_FRAMEBUFFER 
+             gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_RENDERBUFFER, rboId);
+        }
+         //TODO: Let figure out with DrawBuffer
       //  gl.glReadBuffer(GL.GL_NONE);
         //gl.glDrawBuffer(useDrawBuffer ?   FBoBuffers.get(0): GL.GL_NONE);//gl.GL_COLOR_ATTACHMENT0
-        gl.glDrawBuffer(GL.GL_COLOR_ATTACHMENT0);//
+        //gl.glDrawBuffer(GL.GL_COLOR_ATTACHMENT0);//
+        if(!useDrawBuffer) {
+            gl.glDrawBuffer(gl.GL_NONE);
+            gl.glReadBuffer(gl.GL_NONE);
+        }
+        
         
         int status =  gl.glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != gl.GL_FRAMEBUFFER_COMPLETE) {
-            System.err.println("FrameBuffer Error:" + gl.glGetString(gl.glGetError()));
+            System.out.println("FrameBuffer Error:" + gl.glGetString(gl.glGetError()));
             
         }
     }
@@ -213,10 +240,10 @@ gl.glTexParameteri( GL_TEXTURE_2D, gl.GL_DEPTH_TEXTURE_MODE, gl.GL_LUMINANCE );*
         return RBoBuffers.get(0);
     }
     
-      public int addRenderShaBuffer(){
+      public int addRenderColorBuffer(){
           gl.glGenRenderbuffers(1, RBoBuffers);
           gl.glBindRenderbuffer(gl.GL_RENDERBUFFER, RBoBuffers.get(0));
-          gl.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_RGBA, width, height);
+          gl.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_RGB, width, height);
 // Attach the renderbuffer
           gl.glFramebufferRenderbuffer(gl.GL_DRAW_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_RENDERBUFFER, RBoBuffers.get(0));
           return RBoBuffers.get(0);
@@ -224,9 +251,11 @@ gl.glTexParameteri( GL_TEXTURE_2D, gl.GL_DEPTH_TEXTURE_MODE, gl.GL_LUMINANCE );*
     
     public void bindFBO(){
         gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
+       
          gl.glClear(GL4.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT);
+         
         gl.glViewport(0,0,1024,768); 
-          gl.glDrawBuffer(GL.GL_COLOR_ATTACHMENT0);//
+          if(useDrawBuffer)gl.glDrawBuffer(GL.GL_COLOR_ATTACHMENT0);//
        
     }
     
@@ -235,13 +264,13 @@ gl.glTexParameteri( GL_TEXTURE_2D, gl.GL_DEPTH_TEXTURE_MODE, gl.GL_LUMINANCE );*
     }
     
 
-        public void setTexture(GLSLProgramObject prog){
-       // GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
+     public void setTexture(GLSLProgramObject prog) {
+        // GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
         int texLoc = gl.glGetUniformLocation(prog.getProgramId(), "fboTexture");
-  
+
         gl.glUniform1i(texLoc, GL4.GL_TEXTURE0);
-            gl.glEnable(GL_TEXTURE_2D);  
-        gl.glActiveTexture(GL.GL_TEXTURE0);    
+        gl.glEnable(GL_TEXTURE_2D);
+        gl.glActiveTexture(GL.GL_TEXTURE0);
         gl.glBindTexture(GL_TEXTURE_2D, depthTextureId);
         gl.glActiveTexture(0);
     }
