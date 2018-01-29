@@ -147,7 +147,7 @@ public class Scene implements KeyListener{
         viewMatrix = new MatrixUnit();
         viewMatrixBearing = new  MatrixUnit();
         basisMatr = new MatrixUnit();
-        initialCamPos = this.camRotVec.toVector3();
+        initialCamPos = this.cameraPosVector.toVector3();
         
         camView = new MatrixUnit();
         camTrans = new MatrixUnit();

@@ -55,11 +55,11 @@ public class DepthMapPass extends RenderPass{
         System.out.println("Prepare depth buffer");
        FrameBuffer buff = new FrameBuffer(scene.getGl(), 1024, 768);
        buff.setBufferTexturePurpose(GL.GL_DEPTH_ATTACHMENT);
-       buff.setTexturePurpose1(GL.GL_DEPTH_COMPONENT16);
+       buff.setTexturePurpose1(GL.GL_DEPTH_COMPONENT24);
        buff.setTexturePurpose2(GL2ES2.GL_DEPTH_COMPONENT);
        buff.setUseDepthRenderBuffer(false); 
-       buff.setUseDrawBuffer(false);
-       buff.setUseColorRenderBuffer(false);
+       buff.setUseDrawBuffer(true);
+       buff.setUseColorRenderBuffer(true);
        buff.setTextureValueType(GL.GL_FLOAT);
        buff.init();
        System.out.println("Prepare depth buffer finished");

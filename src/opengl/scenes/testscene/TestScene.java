@@ -41,6 +41,8 @@ public class TestScene extends Scene{
     protected int t;
     protected double startTime = 0;
     
+    protected Matrix projectionMatrixOrtho;
+    
     @Override
     public void performRenderPasses() {
        if(optColorMapping)this.performColorBuffRenderPass();
@@ -56,7 +58,7 @@ public class TestScene extends Scene{
         lightMVP = new ViewTransformations(lightView, lightPosition).getViewMatrix();
         this.setStandartRenderVariables(depthMapPass);
         depthMapPass.setViewMatrix(lightMVP);
-
+        //depthMapPass.setProjectionMatrix(projectionMatrixOrtho);
         depthMapPass.render();
 
         sceneObjects.get("screen").setOptRenderEnabled(true);
@@ -81,12 +83,12 @@ public class TestScene extends Scene{
         super(gl);
         this.lightPosition = new Vector3(3.0f, 0.0f, 3.0f);
         this.camRotVec = new Vector3();
-        this.cameraPosVector = new Vector3(1.0f, 0.0f, 0.0f);
+        this.cameraPosVector = new Vector3(0.0f, 0.0f, 3.0f);
       
         startTime = System.currentTimeMillis();
         
         optColorMapping = false;
-        optShadowMapping = true;
+        optShadowMapping = false;
         
         colorMapPass = new ColorMapPass(this);
         depthMapPass = new DepthMapPass(this);
@@ -95,6 +97,7 @@ public class TestScene extends Scene{
         
         mainRender.setOptColorMapping(optColorMapping);
         mainRender.setOptShadowMapping(optShadowMapping);
+        projectionMatrixOrtho = SceneCalculations.calcProjOrtoMatrix(1024, 768, fieldOfView, Zfar, Znear);
         
     }
    @Override
@@ -233,24 +236,20 @@ public class TestScene extends Scene{
          vecField.setVertexData(mesh.getNormalsCoords());//getNormalsCoords*/
          //vecField.init();
        // loadLightVisualiser();
-       loadHeadModel();
-       SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "uv_checker large.jpg");
-         sceneObjects.put("sph", sph);
-       
-       
-        // sceneObjects.put("vec_field", vecField);
-        //loadQuad();
-        initScreen();
+        /*loadHeadModel();
+        SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "uv_checker large.jpg");
+        sceneObjects.put("sph", sph);
+        initScreen();*/
+        initVecField();
          /*CompShaderFiction shad = new CompShaderFiction(gl);
          shad.setTextureFile("uv_checker large.png");
          shad.init();
          sceneObjects.put("comp_shader", shad);*/
          
      }
-      
-     protected void renderTriangle(){
-     }
+    
      
+    
      protected void initScreen(){
            SceneObject screenObj = new SceneObject(this.gl);
            screenObj = new Quad(this.gl);
@@ -262,12 +261,22 @@ public class TestScene extends Scene{
            sceneObjects.put("screen", screenObj);
      }
      
+     protected void initVecField(){
+         VectorField vecField = new VectorField(gl);
+         vecField.addVector(new Vector3(0, 0, 0), new Vector3(0, 1, 0), new Vector3(0.5f, 0.5f, 0.5f));
+         vecField.addVector(new Vector3(0, 0, 0), new Vector3(0, 0, 1), new Vector3(0.5f, 0.5f, 0.5f));
+         vecField.addVector(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0.5f, 0.5f, 0.5f));
+         vecField.init();
+         
+         sceneObjects.put("VectorField", vecField);
+     }
+     
      public void init() throws LoadResourseException{
-         this.cameraPosVector = new Vector3(0f, 0.0f, 1.0f);
+         this.cameraPosVector = new Vector3(0f, 0.0f, 4.0f);
          super.init();
        //  Vector3 upVec = new Vector3(0, 1, 0);
        //  this.viewMatrix = SceneCalculations.lookAt( cameraPosVector, new Vector3(0,0, -2.0f) , upVec );
-         //this.loadHeadModel();
+         this.loadHeadModel();
          this.loadGrid();
        //  this.loadSphere();
         // this.loadCube();

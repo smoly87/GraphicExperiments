@@ -72,8 +72,8 @@ public class VectorField extends SceneObject{
     }
     
     public void addVector(Vector3 point, Vector3 value, Vector3 color){
-        vertexes.add(point);
-        vertexes.add(point.plus(value));
+        vertexes.add(point.toVector4());
+        vertexes.add(point.plus(value).toVector4());
     }
     
     public void setVertexes(float[] vertexesCoords){
