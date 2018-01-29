@@ -355,10 +355,13 @@ public class SceneObject {
         gl.glGenBuffers(buffersCount, buffers);
         
         initBuffer(mesh.getVertexesCoords(), BUFFER_VERTEX);
-        if(optVertexIndexes) initIndexesBuffer();
-        if(optVeretexTextures) initTextureBuffer();
-        if(optVertexNormals) initNormalsBuffer();
-        if(optHasColors) initVertexColorsBuffer();
+        if(optVertexIndexes) initBuffer(mesh.getVertexesIndexes(), BUFFER_VERTEX_INDEXES, GL4.GL_ARRAY_BUFFER, buffers);
+        if(optVeretexTextures) initBuffer( mesh.getTextureCoords(), BUFFER_TEXTURE_COORDS );
+        if(optVertexNormals) initBuffer(mesh.getNormalsCoords(), BUFFER_NORMALS_COORDS);
+        if(optHasColors){
+           float[] colors  =  ArrayUtils.vectorListToArray(this.getVertexesColors());
+           initBuffer(colors, BUFFER_VETREX_COLORS); 
+        } 
         if(optBumpMapping) initBuffer( this.countTangents(), BUFFER_TANGET_COORDS);
         //BUFFER_NORMALS_COORDS
         setupVBA();
@@ -374,55 +377,43 @@ public class SceneObject {
         
     }
     
+    protected void bindBufferToAttr(int vertAttr, int bufferId, int attrDim){
+        gl.glEnableVertexAttribArray(vertAttr);
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffers.get(bufferId));
+        // Второй параметр - размер буффера, для текстур 2, например
+        gl.glVertexAttribPointer(vertAttr, attrDim, GL4.GL_FLOAT, false, 0, 0);
+        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
+    }
+    
     protected void setupVBA(){
         
         gl.glBindVertexArray(vertexArrayObject.get(0));
         
+        bindBufferToAttr(0, BUFFER_VERTEX, vertexCoordsNum);
         
-        gl.glEnableVertexAttribArray(0);
-        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffers.get(BUFFER_VERTEX));
-        gl.glVertexAttribPointer(0, vertexCoordsNum, GL4.GL_FLOAT, false, 0,  0);
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
-        
+ 
         if(optVeretexTextures){
-            gl.glEnableVertexAttribArray(1);
-            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffers.get(BUFFER_TEXTURE_COORDS));
-            // Второй параметр - размер буффера, для текстур 2, например
-            gl.glVertexAttribPointer(1, textureCoordsNum, GL4.GL_FLOAT, false, 0, 0);
-            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
+            bindBufferToAttr(1, BUFFER_TEXTURE_COORDS, textureCoordsNum);
         }
        
         if(optVertexNormals){
-            gl.glEnableVertexAttribArray(2);
-            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffers.get(BUFFER_NORMALS_COORDS));
-            // Второй параметр - размер буффера, для текстур 2, например
-            gl.glVertexAttribPointer(2, normalCoordsNum, GL4.GL_FLOAT, false, 0, 0);
-            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
+            bindBufferToAttr(2, BUFFER_NORMALS_COORDS, normalCoordsNum);
         }
         
-         if(optHasColors){
-            gl.glEnableVertexAttribArray(3);
-            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffers.get(BUFFER_VETREX_COLORS));
-            // Второй параметр - размер буффера, для текстур 2, например
-            gl.glVertexAttribPointer(3, vertexColorsNum, GL4.GL_FLOAT, false, 0, 0);
-            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
+        if(optHasColors){
+
+            bindBufferToAttr(3, BUFFER_VETREX_COLORS, vertexColorsNum);
         }
          
-        if(optBumpMapping){
-            gl.glEnableVertexAttribArray(4);
-            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffers.get(BUFFER_TANGET_COORDS));
-            // Второй параметр - размер буффера, для текстур 2, например
-            gl.glVertexAttribPointer(4, normalCoordsNum, GL4.GL_FLOAT, false, 0, 0);
-            gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
+        if(optBumpMapping){            
+            bindBufferToAttr(4, BUFFER_TANGET_COORDS, normalCoordsNum);
         }        
+        
         if(optVertexIndexes){
            gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, buffers.get(BUFFER_VERTEX_INDEXES));
         }
-        gl.glBindVertexArray(0);
-        /*gl.glDisableVertexAttribArray(0);
-        gl.glDisableVertexAttribArray(1);
-        gl.glDisableVertexAttribArray(2);*/
         
+        gl.glBindVertexArray(0);        
 
     }
     
@@ -433,7 +424,7 @@ public class SceneObject {
             int[] indexes = mesh.getVertexesIndexes();
             IntBuffer buffer = GLBuffers.newDirectIntBuffer(indexes);
             //TODO: think about buffer parameters
-            gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, indexes.length * 4, buffer, GL4.GL_STATIC_DRAW);
+            gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, indexes.length * vertexCoordsNum, buffer, GL4.GL_STATIC_DRAW);
         }
         gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, 0);
     }
@@ -445,7 +436,7 @@ public class SceneObject {
             float[] vertexesCoords = mesh.getVertexesCoords();
             FloatBuffer buffer = GLBuffers.newDirectFloatBuffer(vertexesCoords);
             // TODO: Buffer size * elements size for each vertex (for current property) ? in c docs NUM_VERTICES * VERTEX_SIZE
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexesCoords.length *  4, buffer, GL4.GL_DYNAMIC_DRAW);
+            gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexesCoords.length *  vertexCoordsNum, buffer, GL4.GL_DYNAMIC_DRAW);
         }
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
     }
@@ -457,7 +448,7 @@ public class SceneObject {
             float[] textureCoords = mesh.getTextureCoords();
             FloatBuffer buffer = GLBuffers.newDirectFloatBuffer(textureCoords);
             // TODO: Buffer size * elements size for each vertex (for current property) ? in c docs NUM_VERTICES * VERTEX_SIZE
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, textureCoords.length * 4, buffer, GL4.GL_STATIC_DRAW);
+            gl.glBufferData(GL4.GL_ARRAY_BUFFER, textureCoords.length * vertexCoordsNum, buffer, GL4.GL_STATIC_DRAW);
         }
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
     }
@@ -469,7 +460,7 @@ public class SceneObject {
             float[] normalsCoords = mesh.getNormalsCoords();
             FloatBuffer buffer = GLBuffers.newDirectFloatBuffer(normalsCoords);
             // TODO: Buffer size * elements size for each vertex (for current property) ? in c docs NUM_VERTICES * VERTEX_SIZE
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, normalsCoords.length * 4, buffer, GL4.GL_STATIC_DRAW);
+            gl.glBufferData(GL4.GL_ARRAY_BUFFER, normalsCoords.length * vertexCoordsNum, buffer, GL4.GL_STATIC_DRAW);
         }
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
     }
@@ -481,7 +472,7 @@ public class SceneObject {
             
             float[] colors = ArrayUtils.vectorListToArray(veretexColors);
             FloatBuffer buffer = GLBuffers.newDirectFloatBuffer(colors);
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, colors.length * 4, buffer, GL4.GL_STATIC_DRAW);
+            gl.glBufferData(GL4.GL_ARRAY_BUFFER, colors.length * vertexCoordsNum, buffer, GL4.GL_STATIC_DRAW);
         }
         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
     }
@@ -497,7 +488,12 @@ public class SceneObject {
         gl.glBufferData(glBufferType, coords.length * 4, buffer, GL4.GL_STATIC_DRAW);
         gl.glBindBuffer(glBufferType, 0);
     }
-    
+    protected void initBuffer(int[] coords, int bufferType, int glBufferType, IntBuffer bufferStore) {
+        gl.glBindBuffer(glBufferType, bufferStore.get(bufferType));
+        IntBuffer buffer = GLBuffers.newDirectIntBuffer(coords);
+        gl.glBufferData(glBufferType, coords.length * 4, buffer, GL4.GL_STATIC_DRAW);
+        gl.glBindBuffer(glBufferType, 0);
+    }
     protected void initBuffer(float[] coords, int bufferType, int glBufferType) {
         initBuffer(coords,  bufferType,  glBufferType, buffers);
     }
