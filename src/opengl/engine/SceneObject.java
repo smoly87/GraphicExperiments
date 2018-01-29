@@ -348,6 +348,26 @@ public class SceneObject {
         //TODO: init model vertexes count e.t.c
        
     }
+           
+    protected void initBuffer(float[] coords, int bufferType) {
+       initBuffer(coords, bufferType,  GL4.GL_ARRAY_BUFFER);
+    }
+    
+    protected void initBuffer(float[] coords, int bufferType, int glBufferType, IntBuffer bufferStore) {
+        gl.glBindBuffer(glBufferType, bufferStore.get(bufferType));
+        FloatBuffer buffer = GLBuffers.newDirectFloatBuffer(coords);
+        gl.glBufferData(glBufferType, coords.length * 4, buffer, GL4.GL_STATIC_DRAW);
+        gl.glBindBuffer(glBufferType, 0);
+    }
+    protected void initBuffer(int[] coords, int bufferType, int glBufferType, IntBuffer bufferStore) {
+        gl.glBindBuffer(glBufferType, bufferStore.get(bufferType));
+        IntBuffer buffer = GLBuffers.newDirectIntBuffer(coords);
+        gl.glBufferData(glBufferType, coords.length * 4, buffer, GL4.GL_STATIC_DRAW);
+        gl.glBindBuffer(glBufferType, 0);
+    }
+    protected void initBuffer(float[] coords, int bufferType, int glBufferType) {
+        initBuffer(coords,  bufferType,  glBufferType, buffers);
+    }
     
     protected void initBuffers(){
        
@@ -359,8 +379,7 @@ public class SceneObject {
         if(optVeretexTextures) initBuffer( mesh.getTextureCoords(), BUFFER_TEXTURE_COORDS );
         if(optVertexNormals) initBuffer(mesh.getNormalsCoords(), BUFFER_NORMALS_COORDS);
         if(optHasColors){
-           float[] colors  =  ArrayUtils.vectorListToArray(this.getVertexesColors());
-           initBuffer(colors, BUFFER_VETREX_COLORS); 
+           initBuffer(mesh.getVertexesColors(), BUFFER_VETREX_COLORS); 
         } 
         if(optBumpMapping) initBuffer( this.countTangents(), BUFFER_TANGET_COORDS);
         //BUFFER_NORMALS_COORDS
@@ -389,24 +408,24 @@ public class SceneObject {
         
         gl.glBindVertexArray(vertexArrayObject.get(0));
         
-        bindBufferToAttr(0, BUFFER_VERTEX, vertexCoordsNum);
+        bindBufferToAttr(0, BUFFER_VERTEX, mesh.getVertexCoordsNum());
         
  
         if(optVeretexTextures){
-            bindBufferToAttr(1, BUFFER_TEXTURE_COORDS, textureCoordsNum);
+            bindBufferToAttr(1, BUFFER_TEXTURE_COORDS, mesh.getTextureCoordsNum());
         }
        
         if(optVertexNormals){
-            bindBufferToAttr(2, BUFFER_NORMALS_COORDS, normalCoordsNum);
+            bindBufferToAttr(2, BUFFER_NORMALS_COORDS, mesh.getNormalCoordsNum());
         }
         
         if(optHasColors){
 
-            bindBufferToAttr(3, BUFFER_VETREX_COLORS, vertexColorsNum);
+            bindBufferToAttr(3, BUFFER_VETREX_COLORS, mesh.getColorCoordsNum());
         }
          
         if(optBumpMapping){            
-            bindBufferToAttr(4, BUFFER_TANGET_COORDS, normalCoordsNum);
+            bindBufferToAttr(4, BUFFER_TANGET_COORDS, mesh.getNormalCoordsNum());
         }        
         
         if(optVertexIndexes){
@@ -417,87 +436,8 @@ public class SceneObject {
 
     }
     
-    protected void initIndexesBuffer() {
-        gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, buffers.get(BUFFER_VERTEX_INDEXES));
-        //gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, buffers.get(1));
-        {
-            int[] indexes = mesh.getVertexesIndexes();
-            IntBuffer buffer = GLBuffers.newDirectIntBuffer(indexes);
-            //TODO: think about buffer parameters
-            gl.glBufferData(GL4.GL_ELEMENT_ARRAY_BUFFER, indexes.length * vertexCoordsNum, buffer, GL4.GL_STATIC_DRAW);
-        }
-        gl.glBindBuffer(GL4.GL_ELEMENT_ARRAY_BUFFER, 0);
-    }
-    
-    protected void initVertexBuffer() {
-        //gl.glGenBuffers(1, IntBuffer.wrap(VBO));
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, buffers.get(BUFFER_VERTEX));
-        {
-            float[] vertexesCoords = mesh.getVertexesCoords();
-            FloatBuffer buffer = GLBuffers.newDirectFloatBuffer(vertexesCoords);
-            // TODO: Buffer size * elements size for each vertex (for current property) ? in c docs NUM_VERTICES * VERTEX_SIZE
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, vertexesCoords.length *  vertexCoordsNum, buffer, GL4.GL_DYNAMIC_DRAW);
-        }
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
-    }
-    
-    protected void initTextureBuffer() {
 
-         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, buffers.get(BUFFER_TEXTURE_COORDS));
-        {
-            float[] textureCoords = mesh.getTextureCoords();
-            FloatBuffer buffer = GLBuffers.newDirectFloatBuffer(textureCoords);
-            // TODO: Buffer size * elements size for each vertex (for current property) ? in c docs NUM_VERTICES * VERTEX_SIZE
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, textureCoords.length * vertexCoordsNum, buffer, GL4.GL_STATIC_DRAW);
-        }
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
-    }
-    
-    protected void initNormalsBuffer() {
-
-         gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, buffers.get(BUFFER_NORMALS_COORDS));
-        {
-            float[] normalsCoords = mesh.getNormalsCoords();
-            FloatBuffer buffer = GLBuffers.newDirectFloatBuffer(normalsCoords);
-            // TODO: Buffer size * elements size for each vertex (for current property) ? in c docs NUM_VERTICES * VERTEX_SIZE
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, normalsCoords.length * vertexCoordsNum, buffer, GL4.GL_STATIC_DRAW);
-        }
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
-    }
-    
-    protected void initVertexColorsBuffer() {
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, buffers.get(BUFFER_VETREX_COLORS));
-        {
-            Vector[] veretexColors = this.getVertexesColors();
-            
-            float[] colors = ArrayUtils.vectorListToArray(veretexColors);
-            FloatBuffer buffer = GLBuffers.newDirectFloatBuffer(colors);
-            gl.glBufferData(GL4.GL_ARRAY_BUFFER, colors.length * vertexCoordsNum, buffer, GL4.GL_STATIC_DRAW);
-        }
-        gl.glBindBuffer(GL4.GL_ARRAY_BUFFER, 0);
-    }
-    
-        
-    protected void initBuffer(float[] coords, int bufferType) {
-       initBuffer(coords, bufferType,  GL4.GL_ARRAY_BUFFER);
-    }
-    
-    protected void initBuffer(float[] coords, int bufferType, int glBufferType, IntBuffer bufferStore) {
-        gl.glBindBuffer(glBufferType, bufferStore.get(bufferType));
-        FloatBuffer buffer = GLBuffers.newDirectFloatBuffer(coords);
-        gl.glBufferData(glBufferType, coords.length * 4, buffer, GL4.GL_STATIC_DRAW);
-        gl.glBindBuffer(glBufferType, 0);
-    }
-    protected void initBuffer(int[] coords, int bufferType, int glBufferType, IntBuffer bufferStore) {
-        gl.glBindBuffer(glBufferType, bufferStore.get(bufferType));
-        IntBuffer buffer = GLBuffers.newDirectIntBuffer(coords);
-        gl.glBufferData(glBufferType, coords.length * 4, buffer, GL4.GL_STATIC_DRAW);
-        gl.glBindBuffer(glBufferType, 0);
-    }
-    protected void initBuffer(float[] coords, int bufferType, int glBufferType) {
-        initBuffer(coords,  bufferType,  glBufferType, buffers);
-    }
-    
+ 
     protected void buildShaders() throws LoadResourseException{
        
        this.shadersPrograms.put(shaderProgName, ShadersStore.getInstance().getShaderProgram(shaderProgName, optLoadGeomShader));

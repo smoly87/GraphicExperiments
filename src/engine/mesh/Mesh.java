@@ -34,12 +34,30 @@ public class Mesh {
     protected int vertexPerFace = 3;
     protected int textureCoordsNum = 2;
     protected int normalCoordsNum = 3;
-    
+    protected int colorCoordsNum = 3;
+
+    public int getColorCoordsNum() {
+        return colorCoordsNum;
+    }
+
+    public void setColorCoordsNum(int colorCoordsNum) {
+        this.colorCoordsNum = colorCoordsNum;
+    }
+     
     protected float[] vertexesCoords;
     protected int[] vertexesIndexes;
     protected float[] textureCoords;
     protected float[] normalsCoords;
-     
+    protected float[] vertexesColors;
+
+    public float[] getVertexesColors() {
+        return vertexesColors;
+    }
+
+    public void setVertexesColors(float[] vertexesColors) {
+        this.vertexesColors = vertexesColors;
+    }
+    
     public Mesh() {
          
     }

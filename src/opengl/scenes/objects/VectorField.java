@@ -21,6 +21,9 @@ import utils.ArrayUtils;
 public class VectorField extends SceneObject{
 
     protected LinkedList<Vector> vertexes;
+    protected LinkedList<Vector> values;
+    protected LinkedList<Vector> colors;
+    
     protected float[] vertexesData;
     
     protected float[] tmpVertexes;
@@ -29,18 +32,28 @@ public class VectorField extends SceneObject{
     
     public VectorField(GL4 gl) {
         super(gl);
-        this.drawMode = GL4.GL_LINES;
-        this.optHasColors = false;
+        this.drawMode = GL4.GL_POINTS;
+        this.optHasColors = true;
+        this.optVertexNormals = true;
         this.optVeretexTextures = false;
-        this.optVertexNormals = false;
         this.optLoadTexture = false;
         this.setShaderProgName("vector_field");
-        this.vertexes = new LinkedList<>();
+        this.optLoadGeomShader = true;
         
+        this.vertexCoordsNum = 3;
+        this.normalCoordsNum = 3;
+        
+        this.vertexes = new LinkedList<>();
+        this.values = new LinkedList<>();
+        this.colors = new LinkedList<>();
     }
     @Override
     protected void createMesh(){
         mesh = new Mesh();
+        
+        mesh.setVertexCoordsNum(3);
+        mesh.setNormalCoordsNum(3);
+        mesh.setColorCoordsNum(3);
         
         if(vertexes.size() > 0){
             vertexesData =  ArrayUtils.vectorListToArray(vertexes) ;
@@ -48,21 +61,24 @@ public class VectorField extends SceneObject{
         
         if(autoFillData){
             vertexesData = fillDataFromVertexes();
+           
         }
-        mesh.setVertexesCount(vertexesData.length / 3);
+        mesh.setNormalsCoords(ArrayUtils.vectorListToArray(values));
+        mesh.setVertexesColors(ArrayUtils.vectorListToArray(colors));
+        mesh.setVertexesCount(vertexesData.length / vertexCoordsNum);//Check this
         mesh.setVertexesCoords(vertexesData);
     }
     
     protected float[] fillDataFromVertexes(){
         
         float[] res = new float[tmpVertexes.length * 2];
-        int N = tmpVertexes.length / 3;
+        int N = tmpVertexes.length / vertexCoordsNum;
         
         for(int k = 0; k < N; k++){
-            int s1 = k * 3;
-            int s2 = k * 6;
+            int s1 = k * vertexCoordsNum;
+            int s2 = k * vertexCoordsNum ;
             
-            for(int i = 0; i < 3; i++){
+            for(int i = 0; i < vertexCoordsNum; i++){
                 res[s2 + i] = tmpVertexes[s1 + i];
                 res[s2 + 3 + i] =tmpVertexes[s1 + i] +  tmpVertexesData[s1 + i]; // Из точки откладываем значение, отсюда сумма
             }
@@ -72,10 +88,13 @@ public class VectorField extends SceneObject{
     }
     
     public void addVector(Vector3 point, Vector3 value, Vector3 color){
-        vertexes.add(point.toVector4());
-        vertexes.add(point.plus(value).toVector4());
+        vertexes.add(point);
+        //vertexes.add(point.plus(value));
+        values.add(value);
+        colors.add(color);
     }
-    
+    /* public void addVector(Vector3 point, Vector3 value, Vector3 color){
+     }*/
     public void setVertexes(float[] vertexesCoords){
         this.tmpVertexes =  vertexesCoords;
         autoFillData = true;

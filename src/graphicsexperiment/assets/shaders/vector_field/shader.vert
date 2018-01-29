@@ -1,14 +1,27 @@
 #version 330
 
-layout(location = 0) in vec4 position;
-//layout(location = 3) in vec4 vertexColor;
+layout(location = 0) in vec3 position;
+layout(location = 2) in vec3 value;
+layout(location = 3) in vec3 vertexColor;
 
-out vec4 fragColor;
+struct Vertex{
+   vec3 position;
+   vec3 value;
+   vec3 color;
+};
+
+out Vertex vert;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 MVP;
+out vec4 fragColor;
 void main(){
-    gl_Position = MVP* position;
-	fragColor = vec4(0.5, 0.5, 0.2, 1.0);//vertexColor;
+    
+	vert.position = position;
+	vert.value = value;
+	vert.color = position;
+	//fragColor = vec4(vertexColor,1.0);
+	fragColor = vec4(0.5, 0.8, 0.5,1.0);
+	gl_Position = MVP* vec4(position,1.0);
 }
