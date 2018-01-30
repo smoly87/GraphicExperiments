@@ -31,11 +31,11 @@ public class ShadersStore {
         return instance;
     }
     
-    public GLSLProgramObject getShaderProgram(String shaderProgName, boolean optLoadGeomShader) throws LoadResourseException{
+    public GLSLProgramObject getShaderProgram(String shaderProgName, ShaderProgOptions options) throws LoadResourseException{
         GLSLProgramObject shaderProg;
         String shaderPath = MainConfig.getInstance().getShadersFilePath();
         if(!shadersPrograms.containsKey(shaderProgName)) {
-           shaderProg  = GLProgramBuilder.buildProgram(gl, shaderPath + shaderProgName + "/", true, true, optLoadGeomShader);
+           shaderProg  = GLProgramBuilder.buildProgram(gl, shaderPath + shaderProgName + "/", options);
            this.shadersPrograms.put(shaderProgName, shaderProg);
         } else{
             shaderProg = shadersPrograms.get(shaderProgName);

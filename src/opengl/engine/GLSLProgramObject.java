@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import javax.media.opengl.GL3;
+import javax.media.opengl.GL4;
 import math.linearAlgebra.Matrix;
 import utils.IoReader;
 
@@ -30,7 +31,33 @@ public class GLSLProgramObject {
     protected ArrayList<Integer> _fragmentShaders = new ArrayList<>();
     private Integer _progId;
 //    private String shadersPath = "/shaders/";
+  
+    protected boolean useTransformFeedback;
+    protected String[] feedbackVaryings;
+    
+    public boolean isUseTransformFeedback() {
+        return useTransformFeedback;
+    }
 
+    public void setUseTransformFeedback(boolean useTransformFeedback) {
+        this.useTransformFeedback = useTransformFeedback;
+    }
+
+    public String[] getFeedbackVaryings() {
+        return feedbackVaryings;
+    }
+
+    public void setFeedbackVaryings(String[] feedbackVaryings) {
+        this.feedbackVaryings = feedbackVaryings;
+    }
+
+  
+    protected TransformationFeedback transformFeedback;
+
+    public TransformationFeedback getTransformFeedback() {
+        return transformFeedback;
+    }
+    
     public GLSLProgramObject(GL3 gl3) {
         _progId = 0;
     }
@@ -185,7 +212,7 @@ public class GLSLProgramObject {
         attachShader(gl3, filename, GL3.GL_FRAGMENT_SHADER);
     }
 
-    public final void initializeProgram(GL3 gl3, boolean cleanUp) {
+    public final void initializeProgram(GL4 gl3, boolean cleanUp) {
         _progId = gl3.glCreateProgram();
 
         for (int i = 0; i < _vertexShaders.size(); i++) {
@@ -196,6 +223,11 @@ public class GLSLProgramObject {
             gl3.glAttachShader(_progId, _fragmentShaders.get(i));
         }
 
+        if(useTransformFeedback){
+            transformFeedback = new TransformationFeedback(gl3);
+            transformFeedback.addToProg(this, feedbackVaryings);
+        }
+        
         gl3.glLinkProgram(_progId);
 
         int[] params = new int[]{0};

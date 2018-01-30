@@ -1,8 +1,8 @@
 #version 330
 
 layout(location = 0) in vec3 position;
-layout(location = 2) in vec3 value;
-layout(location = 3) in vec3 vertexColor;
+layout(location = 1) in vec3 value;
+layout(location = 2) in vec3 vertexColor;
 
 struct Vertex{
    vec3 position;
@@ -21,7 +21,7 @@ void main(){
 	vert.position = position;
 	vert.value = value;
 	vert.color = position;
-	//fragColor = vec4(vertexColor,1.0);
-	fragColor = vec4(0.5, 0.8, 0.5,1.0);
+	fragColor = vec4(position,1.0);
+	//fragColor = vec4(0.5, 0.8, 0.5,1.0);
 	gl_Position = MVP* vec4(position,1.0);
 }

@@ -58,7 +58,7 @@ public class CompShaderFiction extends Quad{
     }
 
     @Override
-    protected void render(GL4 gl) {
+    protected void render(GL4 gl, GLSLProgramObject prog) {
          GLSLProgramObject shaderProg  = computeShaderProg;
          //  FloatBuffer buf = null;// GLBuffers.newDirectFloatBuffer(new float[3]);
          int WORK_GR =2;
@@ -83,7 +83,7 @@ public class CompShaderFiction extends Quad{
          gl.glUnmapBuffer( gl.GL_SHADER_STORAGE_BUFFER );
          //
         
-        super.render(gl);
+        super.render(gl, shaderProg);
         
        
          

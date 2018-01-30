@@ -15,6 +15,7 @@ import opengl.engine.GLSLProgramObject;
 import opengl.engine.RenderPass;
 import opengl.engine.Scene;
 import opengl.engine.SceneObject;
+import opengl.engine.ShaderProgOptions;
 import opengl.engine.ShadersStore;
 
 /**
@@ -38,7 +39,7 @@ public class DepthMapPass extends RenderPass{
         this.depthBuff = createDepthBuffer();
         scene.getFrameBuffersStorage().put("DepthBuffer", depthBuff);
         shadowProg = ShadersStore.getInstance()
-                                 .getShaderProgram("ShadowMap", false);
+                                 .getShaderProgram("ShadowMap", new ShaderProgOptions(false));
     }
 
     @Override

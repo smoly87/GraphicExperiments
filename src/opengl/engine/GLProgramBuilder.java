@@ -15,14 +15,16 @@ import javax.media.opengl.GL4;
  */
 public class GLProgramBuilder {
     public static GLSLProgramObject buildProgram(GL4 gl, String folder, 
-            boolean vertexShader, 
-            boolean fragmentShader,
-            boolean geometryShader
+          ShaderProgOptions options
     ) throws LoadResourseException{
         GLSLProgramObject shaderProg = new GLSLProgramObject(gl);
         shaderProg.attachShader(gl, folder + "shader.vert", GL4.GL_VERTEX_SHADER);
         shaderProg.attachShader(gl, folder + "shader.frag", GL4.GL_FRAGMENT_SHADER);
-        if(geometryShader)shaderProg.attachShader(gl, folder + "shader.geom", GL4.GL_GEOMETRY_SHADER);
+        if(options.useGeometryShader)shaderProg.attachShader(gl, folder + "shader.geom", GL4.GL_GEOMETRY_SHADER);
+        if(options.useTransformationFeedback){
+            shaderProg.setUseTransformFeedback(true);
+            shaderProg.setFeedbackVaryings(options.getFeedbackVaryings());
+        }
         shaderProg.initializeProgram(gl, true);
         return shaderProg;
     }

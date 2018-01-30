@@ -39,6 +39,8 @@ public class VectorField extends SceneObject{
         this.optLoadTexture = false;
         this.setShaderProgName("vector_field");
         this.optLoadGeomShader = true;
+        this.optUseTransformFeedback = true;
+        this.setFeedbackVayrings(new String[]{"vOut"});
         
         this.vertexCoordsNum = 3;
         this.normalCoordsNum = 3;
@@ -63,10 +65,11 @@ public class VectorField extends SceneObject{
             vertexesData = fillDataFromVertexes();
            
         }
+        mesh.setVertexesCoords(vertexesData);
         mesh.setNormalsCoords(ArrayUtils.vectorListToArray(values));
         mesh.setVertexesColors(ArrayUtils.vectorListToArray(colors));
         mesh.setVertexesCount(vertexesData.length / vertexCoordsNum);//Check this
-        mesh.setVertexesCoords(vertexesData);
+       
     }
     
     protected float[] fillDataFromVertexes(){

@@ -263,9 +263,9 @@ public class TestScene extends Scene{
      
      protected void initVecField(){
          VectorField vecField = new VectorField(gl);
-         vecField.addVector(new Vector3(0, 0, 0), new Vector3(0, 1, 0), new Vector3(0.5f, 0.8f, 0.5f));
-         vecField.addVector(new Vector3(0, 1, 0), new Vector3(0, 0, 1), new Vector3(0.5f, 0.5f, 0.5f));
-         vecField.addVector(new Vector3(1, 0, 1), new Vector3(1, 0, 0), new Vector3(0.5f, 0.5f, 0.5f));
+        vecField.addVector( new Vector3(1.0f,1.0f, 1.0f),new Vector3(1.5f, 0.0f, -2.0f), new Vector3(0.5f, 0.8f, 0.5f));
+       //  vecField.addVector(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0.5f, 0.5f, 0.5f));
+       //  vecField.addVector(new Vector3(1, 0, 1), new Vector3(1, 0, 0), new Vector3(0.5f, 0.5f, 0.5f));
          vecField.init();
          
          sceneObjects.put("VectorField", vecField);

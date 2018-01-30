@@ -12,6 +12,7 @@ in vec4 fragColor[];
 
 layout(line_strip, max_vertices=2) out;
 out vec4 fragColorG;
+out vec4 vOut;
 uniform mat4 MVP;
 
 /*void copyVertAttr(Vertex v){
@@ -29,11 +30,14 @@ void main()
 	fragColor = vec4(1.0, 1.0, 1.0, 1.0);*/
 	fragColorG = fragColor[0];
 	gl_Position = gl_in[0].gl_Position;
+	vOut = gl_Position;
     EmitVertex();
     
-    gl_Position = MVP*vec4(v.position + v.value, 1.0);
+    gl_Position =  MVP*vec4(v.value + v.position, 1.0);
+	fragColorG = fragColor[0];
 	/*fragColor = vec4(v.color, 1.0);
 	fragColor = vec4(1.0, 1.0, 1.0, 1.0);*/
+	vOut = gl_Position;
     EmitVertex();
     
     EndPrimitive();

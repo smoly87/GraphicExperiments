@@ -112,6 +112,16 @@ public class SceneObject {
     
     protected boolean optRenderEnabled = true;
     
+    protected boolean optUseTransformFeedback = false;
+    protected String[] feedbackVayrings;
+
+    public String[] getFeedbackVayrings() {
+        return feedbackVayrings;
+    }
+
+    public void setFeedbackVayrings(String[] feedbackVayrings) {
+        this.feedbackVayrings = feedbackVayrings;
+    }
     
     public String getShaderProgName() {
         return shaderProgName;
@@ -193,7 +203,7 @@ public class SceneObject {
             setTextureToShader(shaderProgram, bumpMappingTexture, "bumpTexture", GL4.GL_TEXTURE1);
         }
   
-        render(gl); 
+        render(gl, shaderProgram); 
         gl.glBindVertexArray(0);
     }
     
@@ -211,15 +221,31 @@ public class SceneObject {
 
     }
     
-    protected void render(GL4 gl){
+    protected void render(GL4 gl, GLSLProgramObject shaderProgram){
          gl.glBindVertexArray(vertexArrayObject.get(0));
+         
+         
+         TransformationFeedback trFeedback = null;
+         if(shaderProgram.isUseTransformFeedback()){
+             trFeedback = shaderProgram.getTransformFeedback();
+            // trFeedback.createTransFeedbackObj(16);
+             trFeedback.bind(drawMode);
+         }
+         
          if(optVertexIndexes){
             gl.glDrawElements(this.drawMode,  mesh.getIndexesCount(), gl.GL_UNSIGNED_INT, 0);
          } else{
              gl.glDrawArrays(this.drawMode, 0, mesh.getVertexesCount());
          }
-         
+         if(shaderProgram.isUseTransformFeedback()){ 
+             trFeedback.unbind();
+             gl.glFlush();
+             // gl.glMemoryBarrier( gl.GL_BUFFER_UPDATE_BARRIER_BIT  );
+             trFeedback.readData();
+            
+         }
          gl.glBindVertexArray(0);
+         
     }
     
     public void setMaterialPropsToShader(GLSLProgramObject programObject){
@@ -439,13 +465,23 @@ public class SceneObject {
 
  
     protected void buildShaders() throws LoadResourseException{
+       ShadersStore shadersStrore =  ShadersStore.getInstance();
+       ShaderProgOptions options = new ShaderProgOptions();
        
-       this.shadersPrograms.put(shaderProgName, ShadersStore.getInstance().getShaderProgram(shaderProgName, optLoadGeomShader));
+       options.setUseGeometryShader(optLoadGeomShader);
+       options.setUseTransformationFeedback(optUseTransformFeedback);
+       if(optUseTransformFeedback){
+           options.setFeedbackVaryings(feedbackVayrings);
+       }
+       
+       
+       GLSLProgramObject prog = shadersStrore.getShaderProgram(shaderProgName, options);
+       this.shadersPrograms.put(shaderProgName, prog);
     }
     
-    public void addShaderProgram(String folder, boolean geometryShaderLoad, String progName) throws LoadResourseException{
+    public void addShaderProgram(String folder, String progName, ShaderProgOptions options) throws LoadResourseException{
         //GLSLProgramObject shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + folder, true, true, geometryShaderLoad);
-        GLSLProgramObject shaderProg = shadersStore.getShaderProgram(progName, optLoadGeomShader);
+        GLSLProgramObject shaderProg = shadersStore.getShaderProgram(progName, options);
         this.shadersPrograms.put(progName, shaderProg);
     }
     

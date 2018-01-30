@@ -34,13 +34,13 @@ public class Skybox extends Cube{
         texture.bind(gl);
         gl.glUniform1i(textureId, 0);
     }*/
-    protected void render(GL4 gl){
+    protected void render(GL4 gl, GLSLProgramObject prog){
        int[] depthFunc = new int[]{0};
        gl.glGetIntegerv(GL3.GL_DEPTH_FUNC, depthFunc, 0);
        
        gl.glCullFace(GL4.GL_FRONT);
        gl.glDepthFunc(GL4.GL_LEQUAL);
-       super.render(gl);
+       super.render(gl, prog);
        
        gl.glCullFace(GL4.GL_BACK);
        gl.glDepthFunc(depthFunc[0]);
