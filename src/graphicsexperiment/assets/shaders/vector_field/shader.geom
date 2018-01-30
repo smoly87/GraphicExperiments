@@ -5,11 +5,8 @@ struct Vertex{
    vec3 value;
    vec3 color;
 };
-in Vertex vertex[];
+in Vertex vert[];
 //out Vertex vertexOut;
-
-in vec4 fragColor[];
-
 layout(line_strip, max_vertices=2) out;
 out vec4 fragColorG;
 out vec4 vOut;
@@ -25,30 +22,19 @@ void main()
 {
 
 
-    Vertex v = vertex[0];
- /*   fragColor = vec4(v.color, 1.0);
-	fragColor = vec4(1.0, 1.0, 1.0, 1.0);*/
-	fragColorG = fragColor[0];
+    Vertex v = vert[0];
+
+	fragColorG  = vec4(v.color, 1.0);
 	gl_Position = gl_in[0].gl_Position;
-	vOut = gl_Position;
+	//vOut = gl_Position;
     EmitVertex();
     
     gl_Position =  MVP*vec4(v.value + v.position, 1.0);
-	fragColorG = fragColor[0];
-	/*fragColor = vec4(v.color, 1.0);
-	fragColor = vec4(1.0, 1.0, 1.0, 1.0);*/
-	vOut = gl_Position;
+	//fragColorG  =vec4(v.color, 1.0);
+	//vOut = gl_Position;
     EmitVertex();
     
     EndPrimitive();
 	
- /* fragColor = fragColors[0]; // Point has only one vertex
 
-    gl_Position = gl_in[0].gl_Position + vec4(-0.1, 0.1, 0.0, 0.0);
-    EmitVertex();
-fragColor = fragColors[0];
-    gl_Position = gl_in[0].gl_Position + vec4(0.1, 0.1, 0.0, 0.0);
-    EmitVertex();
-
-    EndPrimitive();*/
 }

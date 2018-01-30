@@ -240,7 +240,7 @@ public class TestScene extends Scene{
         SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "uv_checker large.jpg");
         sceneObjects.put("sph", sph);
         initScreen();*/
-        initVecField();
+       
          /*CompShaderFiction shad = new CompShaderFiction(gl);
          shad.setTextureFile("uv_checker large.png");
          shad.init();
@@ -263,7 +263,8 @@ public class TestScene extends Scene{
      
      protected void initVecField(){
          VectorField vecField = new VectorField(gl);
-        vecField.addVector( new Vector3(1.0f,1.0f, 1.0f),new Vector3(1.5f, 0.0f, -2.0f), new Vector3(0.5f, 0.8f, 0.5f));
+        vecField.addVector( new Vector3(0.5f,0.0f, 0.0f),new Vector3(0.0f, 1.0f, 0.0f), new Vector3(1.0f, 0.0f, 1.0f));
+       // vecField.addVector( new Vector3(0.0f, 1.0f, 0.0f),new Vector3(0.0f,0.0f, 0.0f), new Vector3(0.5f, 0.8f, 0.5f));
        //  vecField.addVector(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0.5f, 0.5f, 0.5f));
        //  vecField.addVector(new Vector3(1, 0, 1), new Vector3(1, 0, 0), new Vector3(0.5f, 0.5f, 0.5f));
          vecField.init();
@@ -277,7 +278,7 @@ public class TestScene extends Scene{
        //  Vector3 upVec = new Vector3(0, 1, 0);
        //  this.viewMatrix = SceneCalculations.lookAt( cameraPosVector, new Vector3(0,0, -2.0f) , upVec );
          this.loadHeadModel();
-         this.loadGrid();
+         initVecField();
        //  this.loadSphere();
         // this.loadCube();
              //    System.out.println(cameraRot);

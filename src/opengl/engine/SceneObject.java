@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static javax.media.opengl.GL.GL_TEXTURE_2D;
+import static javax.media.opengl.GL2ES3.GL_RASTERIZER_DISCARD;
 import javax.media.opengl.GL4;
 import static javax.media.opengl.GL4.*;
 import javax.media.opengl.GLException;
@@ -230,6 +231,7 @@ public class SceneObject {
              trFeedback = shaderProgram.getTransformFeedback();
             // trFeedback.createTransFeedbackObj(16);
              trFeedback.bind(drawMode);
+             //gl.glEnable(GL_RASTERIZER_DISCARD);
          }
          
          if(optVertexIndexes){
@@ -239,6 +241,7 @@ public class SceneObject {
          }
          if(shaderProgram.isUseTransformFeedback()){ 
              trFeedback.unbind();
+             //gl.glDisable(GL_RASTERIZER_DISCARD);
              gl.glFlush();
              // gl.glMemoryBarrier( gl.GL_BUFFER_UPDATE_BARRIER_BIT  );
              trFeedback.readData();
