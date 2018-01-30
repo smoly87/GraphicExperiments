@@ -94,13 +94,9 @@ public class VectorField extends SceneObject{
     
     public void addVector(Vector3 point, Vector3 value, Vector3 color){
         vertexes.add(point);
-       // vertexes.add(point.plus(value));
-        
-        values.add(point.plus(value));
-        /*values.add(value);*/
-        
+        values.add(value);
         colors.add(color);
-        /*colors.add(color);*/
+
     }
     /* public void addVector(Vector3 point, Vector3 value, Vector3 color){
      }*/
