@@ -121,6 +121,7 @@ public class MeshLoaderObjFormat extends BaseMeshLoader{
             throw new LoadResourseException("Error while load .obj file " + fileName + " : " + error.getMessage());
         }
         Mesh resMesh = new Mesh();
+        resMesh.setVertexCoordsNum(vertexCoordsNum);
         
         resMesh.setVertexesCount(this.getVertexesCount());
         resMesh.setIndexesCount(indexesCount);

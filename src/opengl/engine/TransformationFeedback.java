@@ -5,6 +5,7 @@
  */
 package opengl.engine;
 
+import com.jogamp.common.nio.Buffers;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -28,7 +29,7 @@ public class TransformationFeedback {
     protected  int feedbackBuffId;
     protected ByteBuffer bufRead;
     
-    protected int dataSize = 16*2;
+    protected int dataSize = 32*2;
     
     public TransformationFeedback(GL4 gl) {
         this.gl = gl;
@@ -36,7 +37,7 @@ public class TransformationFeedback {
     }
     
     public void addToProg( GLSLProgramObject prog, String[] feedbackVaryings){
-        gl.glTransformFeedbackVaryings(prog.getProgramId(), 1, feedbackVaryings, GL2ES3.GL_INTERLEAVED_ATTRIBS);
+        gl.glTransformFeedbackVaryings(prog.getProgramId(), 1, feedbackVaryings, GL2ES3.GL_SEPARATE_ATTRIBS);
     }
     
     protected void createReadBuffer(){
@@ -52,15 +53,17 @@ public class TransformationFeedback {
         feedBacksBuffers = IntBuffer.allocate(1);
         gl.glGenTransformFeedbacks(1, feedBacksBuffers);
         gl.glBindTransformFeedback(GL4ES3.GL_TRANSFORM_FEEDBACK, feedBacksBuffers.get(0));
-        //gl.glBindBufferBase(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedbackBuffId);
-        bindBuffer(bufferLength);
+        gl.glBindBufferBase(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedbackBuffId); 
         gl.glBindTransformFeedback(GL4ES3.GL_TRANSFORM_FEEDBACK, 0);
+        
+        bindBuffer(bufferLength);
     }
     
     protected void bindBuffer(int bufferLength){
         gl.glBindBuffer(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, feedbackBuffId);
-        gl.glBufferData(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, bufferLength, null, GL2ES3.GL_STATIC_READ);
-        gl.glBindBufferBase(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedbackBuffId);
+       
+        gl.glBufferData(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, bufferLength, null, GL2ES3.GL_DYNAMIC_COPY );
+         gl.glBindBuffer(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0);
         
         /*gl.glBindBuffer(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, feedbackBuffId);
         bufRead = gl.glMapBuffer(gl.GL_TRANSFORM_FEEDBACK_BUFFER, gl.GL_READ_ONLY );
@@ -68,16 +71,19 @@ public class TransformationFeedback {
     }
     
     public void  bind(int drawMode){
-        gl.glBindBuffer(GL2ES3.GL_ARRAY_BUFFER, feedbackBuffId);
-         gl.glBindBufferBase(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedbackBuffId);
+       // gl.glBindBuffer(GL2ES3.GL_ARRAY_BUFFER, feedbackBuffId);
+       
         //gl.glEnable(GL2ES3.GL_RASTERIZER_DISCARD);
-        gl.glBindTransformFeedback(GL4ES3.GL_TRANSFORM_FEEDBACK, feedBacksBuffers.get(0));
-        gl.glBeginTransformFeedback(drawMode );
+       
+        gl.glBindTransformFeedback(GL4ES3.GL_TRANSFORM_FEEDBACK, feedBacksBuffers.get(0)); 
+       //  gl.glBindBufferBase(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedbackBuffId);
+        gl.glBeginTransformFeedback(GL.GL_LINE_STRIP );
+        
     }
     
     public void unbind(){
         gl.glEndTransformFeedback();
-        gl.glBindTransformFeedback(GL4ES3.GL_TRANSFORM_FEEDBACK, 0);
+         gl.glBindTransformFeedback(GL4ES3.GL_TRANSFORM_FEEDBACK, 0);
     }
     
     public void readData(){
@@ -88,13 +94,19 @@ public class TransformationFeedback {
         bufRead = gl.glMapBuffer(gl.GL_TRANSFORM_FEEDBACK_BUFFER, gl.GL_STATIC_READ);
         gl.glBindBuffer(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0);
         //   */
-         bufRead = ByteBuffer.allocateDirect(dataSize); 
+        // bufRead = ByteBuffer.allocateDirect(dataSize); 
+         FloatBuffer fb ;
+          fb = Buffers.newDirectFloatBuffer(dataSize);
          gl.glBindBuffer(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, feedbackBuffId);
-         gl.glGetBufferSubData(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0, dataSize, bufRead);
-         
-         FloatBuffer fb =  bufRead.asFloatBuffer();
-         System.out.println(bufRead.getFloat(0)); 
+        // gl.glBindBufferBase(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedbackBuffId);
+         gl.glGetBufferSubData(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0, dataSize, fb);
+        //gl.glFinish();
+       //  System.out.println(bufRead.getInt(0));
+         //FloatBuffer fb =  bufRead.asFloatBuffer();
+         System.out.println(fb.get(4)); 
          System.out.println(fb.get(1)); 
+        //  gl.glBindBuffer(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0);
+        
          //   gl.glBindBuffer(GL2ES3.GL_TRANSFORM_FEEDBACK_BUFFER, 0); 
        //  gl.glUnmapBuffer( gl.GL_TRANSFORM_FEEDBACK_BUFFER );
          bufRead = null;

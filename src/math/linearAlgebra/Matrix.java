@@ -136,7 +136,7 @@ public class Matrix {
         return     res.toVector3();
     }
     
-    public Vector3 multiply(Vector3 p, int wValue){
+    public Vector3 multiply(Vector3 p, float wValue){
         Vector res = multiplyVec(new Vector4(p.values[0], p.values[1], p.values[2], wValue));
         return     res.toVector3();
     }

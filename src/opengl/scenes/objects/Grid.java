@@ -40,7 +40,7 @@ public class Grid extends SceneObject{
     @Override
     protected void createMesh(){
         mesh = new Mesh();
-        
+        mesh.setVertexCoordsNum(vertexCoordsNum);
              
        
         ArrayList<Vector3> textureCoordsList = new ArrayList<Vector3>();

@@ -30,7 +30,7 @@ public class Mesh {
     protected boolean optLoadNormals;
     
     protected int indexOffeset = 1;
-    protected int vertexCoordsNum = 4;
+    protected int vertexCoordsNum = 3;
     protected int vertexPerFace = 3;
     protected int textureCoordsNum = 2;
     protected int normalCoordsNum = 3;

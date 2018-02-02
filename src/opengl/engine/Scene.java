@@ -315,9 +315,12 @@ public class Scene implements KeyListener{
         sceneObj.display(gl, programObject, progName);
         programObject.unbind(gl);
     }
-    
     @Override
-    public void keyPressed(KeyEvent e) {
+    public void keyReleased(KeyEvent e) {
+       // processKeyPress(e);
+    }
+
+    public void processKeyPress(KeyEvent e) {
         /*float factor;
          factor = e.isShiftDown() ? 10 : 1;*/
         switch (e.getKeyCode()) {
@@ -535,12 +538,13 @@ public class Scene implements KeyListener{
 
     @Override
     public void keyTyped(KeyEvent e) {
-        keyPressed(e);
+       // keyPressed(e);
     }
 
     @Override
-    public void keyReleased(KeyEvent e) {
-            keyPressed(e);
+    public void keyPressed(KeyEvent e) {
+        //    keyPressed(e);
+        processKeyPress(e);
     }
 
    

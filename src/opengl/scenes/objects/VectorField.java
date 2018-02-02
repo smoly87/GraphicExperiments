@@ -42,7 +42,7 @@ public class VectorField extends SceneObject{
         this.optLoadGeomShader = true;
         
         this.optUseTransformFeedback = false;
-        this.setFeedbackVayrings(new String[]{"vOut"});
+        this.setFeedbackVayrings(new String[]{"fragColorG"});
         
         this.vertexCoordsNum = 3;
         this.normalCoordsNum = 3;

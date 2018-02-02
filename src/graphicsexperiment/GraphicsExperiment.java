@@ -38,6 +38,8 @@ import math.linearAlgebra.Vector3;
 import math.transformMatricies4.MatrixRotationY;
 import math.transformMatricies4.MatrixUnit;
 import opengl.engine.MainConfig;
+import opengl.engine.Scene;
+import opengl.scenes.glass.GlassScene;
 import opengl.scenes.testscene.TestScene;
 
 import utils.IoReader;
@@ -53,7 +55,7 @@ public class GraphicsExperiment  implements GLEventListener {
     private GLCanvas canvas;
        
     protected FPSAnimator animator;
-    protected TestScene scene;
+    protected Scene scene;
     protected MainConfig config;
     /**
      * @param args the command line arguments
@@ -108,7 +110,8 @@ public class GraphicsExperiment  implements GLEventListener {
         config.setGl(gl);
         
         try {
-            scene = new TestScene(gl);
+            //scene = new TestScene(gl);
+            scene = new GlassScene(gl);
             // scene.init();
         } catch (LoadResourseException ex) {
             Logger.getLogger(GraphicsExperiment.class.getName()).log(Level.SEVERE, null, ex);

@@ -13,6 +13,6 @@ uniform sampler2D fboTexture;
 void main(){
     // Not really needed, OpenGL does it anyway
     float v = texture(fboTexture, vert.textureUV).r/1.02;
-	pointColor =vec4(v,v,v,1.0 ) ;//
-	//pointColor = texture(fboTexture, vert.textureUV).rgb;//v
+	//pointColor =vec4(v,v,v,1.0 ) ;//
+	pointColor = texture(fboTexture, vert.textureUV);//v
 }

@@ -18,10 +18,11 @@ void main()
     Vertex v = vert[0];
 	fragColorG  = vec4(v.color, 1.0);
 	gl_Position = gl_in[0].gl_Position;
-	//vOut = gl_Position;
+	vOut = vec4(v.color, 1.0);
     EmitVertex();
     
     gl_Position =  MVP*vec4(v.value + v.position, 1.0);
+		vOut = vec4(v.color, 1.0);
     EmitVertex();
     
     EndPrimitive();

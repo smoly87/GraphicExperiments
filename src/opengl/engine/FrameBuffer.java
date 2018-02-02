@@ -48,6 +48,27 @@ public class FrameBuffer {
 
     protected boolean useStencilBuffer;
     protected boolean useColorRenderBuffer;
+    
+    protected int textureId; 
+    protected int clearFlag = gl.GL_DEPTH_BUFFER_BIT|GL4.GL_COLOR_BUFFER_BIT;
+
+    public int getClearFlag() {
+        return clearFlag;
+    }
+
+    public void setClearFlag(int clearFlag) {
+        this.clearFlag = clearFlag;
+    }
+    
+    
+    public int getTextureId() {
+        return textureId;
+    }
+
+    public void setTextureId(int textureId) {
+        this.textureId = textureId;
+    }
+   
 
     public boolean isUseColorRenderBuffer() {
         return useColorRenderBuffer;
@@ -151,10 +172,11 @@ public class FrameBuffer {
     }
     
     protected int createFboTexture(){
+ 
         gl.glGenTextures(1, textBuffers);
 
-        depthTextureId = textBuffers.get(0);
-        gl.glBindTexture(GL_TEXTURE_2D, depthTextureId);
+        int texId = textBuffers.get(0);
+        gl.glBindTexture(GL_TEXTURE_2D, texId);
 
         gl.glTexImage2D(GL_TEXTURE_2D, 0, texturePurpose1, width, height, 0, texturePurpose2, textureValueType, null);
         
@@ -177,15 +199,32 @@ gl.glTexParameteri( GL_TEXTURE_2D, gl.GL_DEPTH_TEXTURE_MODE, gl.GL_LUMINANCE );*
       
       /*gl.glTexParameteri( GL_TEXTURE_2D, GL2ES2.GL_TEXTURE_COMPARE_MODE, GL.GL_NONE );
 gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*/
-      gl.glBindTexture(GL_TEXTURE_2D,0);
-        return depthTextureId;
+        gl.glBindTexture(GL_TEXTURE_2D,0);
+        return texId;
+    }
+    
+    public void bindTexture(int texId){
+        gl.glFramebufferTexture2D(GL_FRAMEBUFFER, bufferTexturePurpose, GL_TEXTURE_2D, texId, 0);
+    }
+    
+    public void bindCubeTexture(int texId, int faceId){
+        gl.glFramebufferTexture2D( GL_FRAMEBUFFER, bufferTexturePurpose, faceId, texId, 0);
     }
     
     protected void createFrameBuffer(){
         
-        depthTextureId = createFboTexture();
+       
+        if(this.getTextureId() < 1){
+           textureId = createFboTexture();  
+           gl.glFramebufferTexture2D(GL_FRAMEBUFFER, bufferTexturePurpose, GL_TEXTURE_2D, textureId, 0);
+        } else{
+           // for(int i=0;i<6;i++){
+             gl.glFramebufferTexture2D( GL_FRAMEBUFFER, bufferTexturePurpose, GL4.GL_TEXTURE_CUBE_MAP_POSITIVE_X, textureId, 0); 
+            //}
+        }
+        
         //gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
-        gl.glFramebufferTexture2D(GL_FRAMEBUFFER, bufferTexturePurpose, GL_TEXTURE_2D, depthTextureId, 0);
+      
         ///gl.glFramebufferTexture2D(GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, depthTextureId, 0);
         
        // gl.glRenderbufferStorage(gl.GL_RENDERBUFFER, gl.GL_DEPTH_COMPONENT, 1024, 768);
@@ -216,7 +255,7 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
         
         int status =  gl.glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != gl.GL_FRAMEBUFFER_COMPLETE) {
-            System.out.println("FrameBuffer Error:" + gl.glGetString(gl.glGetError()));
+            System.out.println("FrameBuffer Error:" + status + gl.glGetString(gl.glGetError()));
             
         }
     }
@@ -252,7 +291,7 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
     public void bindFBO(){
         gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
        
-         gl.glClear(GL4.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT);
+         gl.glClear(clearFlag);
          
         gl.glViewport(0,0,1024,768); 
           if(useDrawBuffer)gl.glDrawBuffer(GL.GL_COLOR_ATTACHMENT0);//
@@ -271,7 +310,18 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
         gl.glUniform1i(texLoc, GL4.GL_TEXTURE0);
         gl.glEnable(GL_TEXTURE_2D);
         gl.glActiveTexture(GL.GL_TEXTURE0);
-        gl.glBindTexture(GL_TEXTURE_2D, depthTextureId);
+        gl.glBindTexture(GL_TEXTURE_2D, textureId);
+        gl.glActiveTexture(0);
+    }
+     public void setTextureCubeMap(GLSLProgramObject prog) throws EngineException {
+        // GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
+        int texLoc = gl.glGetUniformLocation(prog.getProgramId(), "fboTexture");
+        if(texLoc == -1) throw new EngineException("CubeMap texture was not founded in shader program!");
+
+        gl.glUniform1i(texLoc, GL4.GL_TEXTURE1);
+        gl.glEnable(GL.GL_TEXTURE_CUBE_MAP);
+        gl.glActiveTexture(GL.GL_TEXTURE1);
+        gl.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, textureId);
         gl.glActiveTexture(0);
     }
 }

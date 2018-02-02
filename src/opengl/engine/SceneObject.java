@@ -193,12 +193,16 @@ public class SceneObject {
         
     }
     
-    public void display(GL4 gl, GLSLProgramObject shaderProgram, String shaderProgramName ){
-        gl.glBindVertexArray(vertexArrayObject.get(0));
- 
+    protected void setTextureToShader(GLSLProgramObject shaderProgram){ 
         if(optLoadTexture){
            setTextureToShader(shaderProgram, texture, "myTexture", GL4.GL_TEXTURE0);
         }
+    }
+    
+    public void display(GL4 gl, GLSLProgramObject shaderProgram, String shaderProgramName ){
+        gl.glBindVertexArray(vertexArrayObject.get(0));
+ 
+        setTextureToShader(shaderProgram);
         
         if(optBumpMapping){
             setTextureToShader(shaderProgram, bumpMappingTexture, "bumpTexture", GL4.GL_TEXTURE1);
@@ -231,7 +235,7 @@ public class SceneObject {
              trFeedback = shaderProgram.getTransformFeedback();
             // trFeedback.createTransFeedbackObj(16);
              trFeedback.bind(drawMode);
-             //gl.glEnable(GL_RASTERIZER_DISCARD);
+             gl.glEnable(GL_RASTERIZER_DISCARD);
          }
          
          if(optVertexIndexes){
@@ -241,8 +245,9 @@ public class SceneObject {
          }
          if(shaderProgram.isUseTransformFeedback()){ 
              trFeedback.unbind();
-             //gl.glDisable(GL_RASTERIZER_DISCARD);
+             gl.glDisable(GL_RASTERIZER_DISCARD);
              gl.glFlush();
+             //shaderProgram.unbind(gl);
              // gl.glMemoryBarrier( gl.GL_BUFFER_UPDATE_BARRIER_BIT  );
              trFeedback.readData();
             

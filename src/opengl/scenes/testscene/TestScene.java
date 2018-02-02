@@ -87,7 +87,7 @@ public class TestScene extends Scene{
       
         startTime = System.currentTimeMillis();
         
-        optColorMapping = false;
+        optColorMapping = true;
         optShadowMapping = false;
         
         colorMapPass = new ColorMapPass(this);
@@ -263,7 +263,7 @@ public class TestScene extends Scene{
      
      protected void initVecField(){
          VectorField vecField = new VectorField(gl);
-        vecField.addVector( new Vector3(0.5f,0.0f, 0.0f),new Vector3(0.0f, 1.0f, 0.0f), new Vector3(1.0f, 0.0f, 1.0f));
+        vecField.addVector( new Vector3(0.5f,0.0f, 0.0f),new Vector3(0.0f, 1.0f, 0.0f), new Vector3(1.0f, 1.0f, 1.0f));
        // vecField.addVector( new Vector3(0.0f, 1.0f, 0.0f),new Vector3(0.0f,0.0f, 0.0f), new Vector3(0.5f, 0.8f, 0.5f));
        //  vecField.addVector(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0.5f, 0.5f, 0.5f));
        //  vecField.addVector(new Vector3(1, 0, 1), new Vector3(1, 0, 0), new Vector3(0.5f, 0.5f, 0.5f));
@@ -279,6 +279,7 @@ public class TestScene extends Scene{
        //  this.viewMatrix = SceneCalculations.lookAt( cameraPosVector, new Vector3(0,0, -2.0f) , upVec );
          this.loadHeadModel();
          initVecField();
+         initScreen();
        //  this.loadSphere();
         // this.loadCube();
              //    System.out.println(cameraRot);

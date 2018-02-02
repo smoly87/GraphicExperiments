@@ -23,6 +23,7 @@ public class RenderPassStandart extends RenderPass{
     protected void renderObject(GL4 gl, SceneObject sceneObj, String objName) {
          for (Map.Entry<String, GLSLProgramObject> entry : sceneObj.getShadersPrograms().entrySet()) {
            String key = entry.getKey();
+           
            GLSLProgramObject programObject = entry.getValue();
            
            programObject.bind(gl);

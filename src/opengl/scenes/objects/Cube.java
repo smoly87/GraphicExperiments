@@ -25,7 +25,7 @@ import opengl.scenes.utils.VertexAggregator;
 public class Cube extends SceneObject{
      public Cube(GL4 gl) {
         super(gl);
-        this.optVertexNormals = true;
+        this.optVertexNormals = false;
         this.optLoadModelFile = false;
         this.vertexCoordsNum = 3;
         
@@ -35,7 +35,7 @@ public class Cube extends SceneObject{
     protected Vector3[]  transformVertexes(Matrix M, Vector3[] vertexes){
         Vector3[] res = new Vector3[vertexes.length];
         for(int i = 0; i < vertexes.length; i++){
-            res[i] = M.multiply(vertexes[i]);
+            res[i] = M.multiply(vertexes[i], 1.0f);
         }
         return res;
     }
