@@ -60,16 +60,20 @@ public class RayTraceSurfaceSphere extends RayTraceSurface{
            
            Vector3 dirI = intersectPos.minus(ray.posFrom);
            float dirV = Vector3.dot(dirI,  ray.dir);
+           boolean refractToEnv = false;
            if(dirV < 0){
                t = (-b + D)/(2*a);
                intersectPos = calcPosByT(ray, t);
+               refractToEnv = true;
+               
            }
           /* Vector3 intersectPos1 = calcPosByT(ray, t);
            Vector3 vecPos = calcPosByT(ray, ray.t);
            
            
            System.out.println(intersectPos1);*/
-           return new IntersectResult(intersectPos, calcNormal(intersectPos), t);
+           IntersectResult res =  new IntersectResult(intersectPos, calcNormal(intersectPos), t, refractToEnv);
+           return res;
                    
        } else{
            return null;

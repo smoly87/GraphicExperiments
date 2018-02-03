@@ -16,12 +16,14 @@ public class TestRayTraceScene extends RayTraceScene{
     protected ArrayList<RaysSource> res ;
     
     public void init(){
-        this.addSurface(new RayTraceSurfaceSphere(0, 0, 1));
+        RayTraceSurface sphere = new RayTraceSurfaceSphere(0, 0, 1);
+        sphere.setRefractKoof(1.8f);
+        this.addSurface(sphere);
         
-        double ang = -Math.PI/4;
+        double ang = -Math.PI/3;
         this.addRay(new Ray(new Vector3(-1, 1, 0), new Vector3((float)Math.cos(ang), (float)Math.sin(ang), 0)));
         
-        ArrayList<RaysSource> res = this.calculate(1);
+        res = this.calculate(1);
         
       
         

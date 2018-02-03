@@ -8,6 +8,7 @@ package opengl.scenes.raytracing2d;
 import opengl.scenes.testscene.*;
 import engine.exception.LoadResourseException;
 import engine.mesh.Mesh;
+import java.util.LinkedList;
 import java.util.Map;
 import opengl.engine.Scene;
 import  javax.media.opengl.GL3;
@@ -85,6 +86,13 @@ public class RayTracing2dScene extends Scene{
          lense.init();
          sceneObjects.put("Lense", lense);
      }
+     
+     protected void drawRaysList(VectorField vecField, LinkedList<Ray> raysList, Vector3 color){
+         raysList.forEach((ray) -> {
+             vecField.addVector(ray.getPosFrom(), ray.getPosTo().minus(ray.getPosFrom()), color);
+        });
+       
+     }
 
      protected void initVecField(){
          VectorField vecField = new VectorField(gl);
@@ -94,11 +102,14 @@ public class RayTracing2dScene extends Scene{
          rayTraceCalc.getSrcRays();
          //rayTraceCalc.getSrcRays();
          
-         for(Ray ray:rayTraceCalc.getSrcRays().getRefractedRays()){
-               vecField.addVector(ray.getPosFrom(), ray.getPosTo().minus(ray.getPosFrom()), new Vector3(0.0f, 1.0f, 0.0f));
-         }
-       
-         
+         drawRaysList(vecField, rayTraceCalc.getSrcRays().getRefractedRays(), new Vector3(0.0f, 1.0f, 0.0f));
+         drawRaysList(vecField, rayTraceCalc.getResult().getRefractedRays(), new Vector3(1.0f, 0.0f, 0.0f));
+         drawRaysList(vecField, rayTraceCalc.getResult().getReflectedRays(), new Vector3(0.5f, 0.5f, 0.5f));
+         drawRaysList(vecField, rayTraceCalc.getResult().getNormalRays(), new Vector3(0.0f, 0.0f, 1.0f));
+        
+         rayTraceCalc.getResult().getNormalRays().forEach((ray) -> {
+             vecField.addVector(ray.getPosFrom(), ray.getPosTo().minus(ray.getPosFrom()).multiply(-1.0f), new Vector3(0.0f, 0.0f, 1.0f));
+         });
          vecField.init();
          
          sceneObjects.put("VectorField", vecField);

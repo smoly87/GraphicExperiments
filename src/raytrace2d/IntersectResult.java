@@ -14,6 +14,7 @@ import math.linearAlgebra.Vector3;
 public class IntersectResult {
     protected Vector3 pos;
     protected Vector3 normal;
+    protected boolean refractToEnv;
     protected float t;
 
     public float getT() {
@@ -29,9 +30,10 @@ public class IntersectResult {
         return normal;
     }
 
-    public IntersectResult(Vector3 pos, Vector3 normal, float t) {
+    public IntersectResult(Vector3 pos, Vector3 normal, float t, boolean refractToEnv) {
         this.pos = pos;
         this.normal = normal;
         this.t = t;
+        this.refractToEnv = refractToEnv;
     }
 }

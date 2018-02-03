@@ -17,6 +17,7 @@ import math.linearAlgebra.Vector3;
 public class RayTraceScene {
     protected ArrayList<RayTraceSurface> surfaces;
     protected RaysSource srcRays;
+    protected float refractKoofEnv = 1.0f;
 
     public RaysSource getSrcRays() {
         return srcRays;
@@ -37,19 +38,63 @@ public class RayTraceScene {
     }
     
     
+    protected Ray calcReflectedRay( IntersectResult res, Ray ray){
+        float nKoof = Vector3.dot(ray.dir, res.getNormal());
+        Vector3 reflRayDir = ray.dir.minus(res.getNormal().multiply(2 * nKoof));
+
+        Ray reflectedRay = new Ray(res.getPos(), reflRayDir);
+        if(res.refractToEnv){
+            ray.setRefractKoof(refractKoofEnv); 
+        } else{
+            ray.setRefractKoof(refractKoofEnv);
+        }
+        return reflectedRay;
+    }
+    
+    
+     protected Ray calcRefractedRay( IntersectResult res, Ray ray, RayTraceSurface surface){
+        /*float nKoof = Vector3.dot(ray.dir, res.getNormal());
+        Vector3 reflRayDir = ray.dir.minus(res.getNormal().multiply(2 * nKoof));*/
+        Vector3 n = res.getNormal();
+        Vector3 I = ray.getDir();
+        float dKoof = Vector3.dot(I, n);
+        Vector3 d = n.multiply(dKoof)
+                     .minus(I);
+        
+        float n1;
+        float n2;
+        
+        if(!res.refractToEnv){
+            n1 = refractKoofEnv;
+            n2 = surface.getRefractKoof();
+        } else{
+            n2 = refractKoofEnv;
+            n1 = surface.getRefractKoof();
+        }
+        
+        Vector3 dR = d.multiply(n1/n2);
+        Vector3 refractedRayDir = n.multiply(dKoof).minus(dR);
+
+        Ray reflectedRay = new Ray(res.getPos(), refractedRayDir);
+        
+        if(res.refractToEnv){
+            ray.setRefractKoof(refractKoofEnv); 
+        } else{
+            ray.setRefractKoof(ray.getRefractKoof());
+        }
+        
+        return reflectedRay;
+    }
     
     protected void calcSurfaceRays(RaysSource resRays, LinkedList<Ray> curRays,  RayTraceSurface surface){
         for(Ray ray:curRays){
-           IntersectResult res =  surface.calculateIntersection(ray);
-           if(res != null){
+           IntersectResult intersecRes =  surface.calculateIntersection(ray);
+           if(intersecRes != null){
+               resRays.getNormalRays().add(new Ray(intersecRes.getPos(), intersecRes.getNormal()));
+               ray.posTo = intersecRes.getPos();
                
-               ray.posTo = res.getPos();
-               
-               Vector3 n2 = res.getNormal().normalise().multiply(2);
-               Vector3 reflRay = ray.dir.minus(n2);
-               
-               Ray reflectedRay = new Ray(res.getPos(),  reflRay);
-               resRays.getRefractedRays().add(reflectedRay);
+               resRays.getReflectedRays().add(calcReflectedRay(intersecRes, ray));
+               resRays.getRefractedRays().add(calcRefractedRay(intersecRes, ray, surface));
            }
         }
     }

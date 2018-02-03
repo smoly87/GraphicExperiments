@@ -14,7 +14,15 @@ import math.linearAlgebra.Vector3;
 public class Ray {
     protected Vector3 posTo;
     protected Vector3 posFrom;
+    protected float refractKoof = 1.0f;   
 
+    public float getRefractKoof() {
+        return refractKoof;
+    }
+
+    public void setRefractKoof(float refractKoof) {
+        this.refractKoof = refractKoof;
+    }
     public Vector3 getPosFrom() {
         return posFrom;
     }
@@ -34,6 +42,9 @@ public class Ray {
     }
 
     public Vector3 getPosTo() {
+        if(posTo == null){
+            posTo = posFrom.plus(dir.normalise().multiply(0.2f));
+        }
         return posTo;
     }
 

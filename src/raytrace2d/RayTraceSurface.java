@@ -13,6 +13,14 @@ import math.linearAlgebra.Vector3;
  */
 public abstract class RayTraceSurface {
      public abstract IntersectResult calculateIntersection(Ray ray);
-        
+     protected float refractKoof ;   
+
+    public float getRefractKoof() {
+        return refractKoof;
+    }
+
+    public void setRefractKoof(float refractKoof) {
+        this.refractKoof = refractKoof;
+    }
      
 }

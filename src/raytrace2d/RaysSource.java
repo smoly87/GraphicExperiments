@@ -15,10 +15,20 @@ import math.linearAlgebra.Vector3;
 public class RaysSource {
     protected LinkedList<Ray> reflectedRays;
     protected LinkedList<Ray> refractedRays;
+    protected LinkedList<Ray> normalRays;
 
+    public LinkedList<Ray> getNormalRays() {
+        return normalRays;
+    }
+
+    public void setNormalRays(LinkedList<Ray> normalRays) {
+        this.normalRays = normalRays;
+    }
+    
     public RaysSource() {
         refractedRays = new LinkedList<>();
         reflectedRays = new LinkedList<>();
+        normalRays = new LinkedList<>();
     }
 
     public LinkedList<Ray> getReflectedRays() {
