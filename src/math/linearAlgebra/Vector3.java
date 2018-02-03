@@ -59,6 +59,16 @@ public class Vector3 extends Vector{
         }
         return res;
     }
+    
+   public Vector3 multiply(float scalar){
+       
+        Vector3 res = new Vector3();
+        for(int i = 0; i < 3; i++){
+            res.values[i] = this.values[i] * scalar;
+        }
+        return res;
+    }
+    
     public Vector3 normalise(){
         int N = getSize();
         Vector3 res = new Vector3();

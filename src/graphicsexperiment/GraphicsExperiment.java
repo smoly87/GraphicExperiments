@@ -40,6 +40,7 @@ import math.transformMatricies4.MatrixUnit;
 import opengl.engine.MainConfig;
 import opengl.engine.Scene;
 import opengl.scenes.glass.GlassScene;
+import opengl.scenes.raytracing2d.RayTracing2dScene;
 import opengl.scenes.testscene.TestScene;
 
 import utils.IoReader;
@@ -111,7 +112,9 @@ public class GraphicsExperiment  implements GLEventListener {
         
         try {
             //scene = new TestScene(gl);
-            scene = new GlassScene(gl);
+           // scene = new GlassScene(gl);
+            scene = new RayTracing2dScene(gl);
+            
             // scene.init();
         } catch (LoadResourseException ex) {
             Logger.getLogger(GraphicsExperiment.class.getName()).log(Level.SEVERE, null, ex);
