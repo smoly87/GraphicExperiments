@@ -26,7 +26,7 @@ public class RayTraceSurfaceSphere extends RayTraceSurface{
     
     
     protected Vector3 calcPosByT(Ray ray, float t){
-        Vector3 r = new Vector3(ray.dir.values[0]*t + ray.posFrom.values[0], ray.dir.values[1]*t + ray.posFrom.values[1], 0);
+        Vector3 r = new Vector3(ray.getDir().values[0]*t + ray.posFrom.values[0], ray.getDir().values[1]*t + ray.posFrom.values[1], 0);
         return r;
     }
     
@@ -38,8 +38,8 @@ public class RayTraceSurfaceSphere extends RayTraceSurface{
     public IntersectResult calculateIntersection(Ray ray) {
        float x1 =   ray.posFrom.values[0];
        float y1 =   ray.posFrom.values[1];
-       float m = ray.dir.values[0];
-       float n = ray.dir.values[1];
+       float m = ray.getDir().values[0];
+       float n = ray.getDir().values[1];
        
        float c1 = (x1 - x0);
        float c2 = (y1 - y0);
@@ -61,7 +61,8 @@ public class RayTraceSurfaceSphere extends RayTraceSurface{
            Vector3 dirI = intersectPos.minus(ray.posFrom);
            float dirV = Vector3.dot(dirI,  ray.dir);
            boolean refractToEnv = false;
-           if(dirV < 0){
+           float eps = 0.0001f;
+           if(dirV <= 0 || (float)Math.abs(dirV) < eps){
                t = (-b + D)/(2*a);
                intersectPos = calcPosByT(ray, t);
                refractToEnv = true;

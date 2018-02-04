@@ -31,6 +31,7 @@ import opengl.scenes.objects.Skybox;
 import opengl.scenes.objects.Sphere;
 import opengl.scenes.objects.VectorField;
 import raytrace2d.Ray;
+import raytrace2d.RaysSource;
 import raytrace2d.TestRayTraceScene;
 /**
  *
@@ -76,7 +77,7 @@ public class RayTracing2dScene extends Scene{
          float pi = (float)Math.PI;
          float h = 0.1f; 
          
-         double R = 1.0;
+         double R = 0.5;
          
          for(float ang=0; ang < 2*pi; ang+=h){
              lense.addVector(new Vector3((float)(R*Math.cos(ang)),  (float)(R*Math.sin(ang)), 0.0f));
@@ -94,22 +95,28 @@ public class RayTracing2dScene extends Scene{
        
      }
 
+     protected void drawRaysGen( VectorField vecField, RaysSource rayCalsRes){
+         
+         drawRaysList(vecField, rayCalsRes.getRefractedRays(), new Vector3(1.0f, 0.0f, 0.0f));
+         drawRaysList(vecField, rayCalsRes.getReflectedRays(), new Vector3(0.5f, 0.5f, 0.5f));
+         drawRaysList(vecField, rayCalsRes.getNormalRays(), new Vector3(0.0f, 0.0f, 1.0f));
+        
+         rayCalsRes.getNormalRays().forEach((ray) -> {
+             vecField.addVector(ray.getPosFrom(), ray.getPosTo().minus(ray.getPosFrom()).multiply(-1.0f), new Vector3(0.0f, 0.0f, 1.0f));
+         });
+     }
+     
      protected void initVecField(){
          VectorField vecField = new VectorField(gl);
          
          TestRayTraceScene rayTraceCalc = new TestRayTraceScene();
          rayTraceCalc.init();
-         rayTraceCalc.getSrcRays();
-         //rayTraceCalc.getSrcRays();
          
-         drawRaysList(vecField, rayTraceCalc.getSrcRays().getRefractedRays(), new Vector3(0.0f, 1.0f, 0.0f));
-         drawRaysList(vecField, rayTraceCalc.getResult().getRefractedRays(), new Vector3(1.0f, 0.0f, 0.0f));
-         drawRaysList(vecField, rayTraceCalc.getResult().getReflectedRays(), new Vector3(0.5f, 0.5f, 0.5f));
-         drawRaysList(vecField, rayTraceCalc.getResult().getNormalRays(), new Vector3(0.0f, 0.0f, 1.0f));
-        
-         rayTraceCalc.getResult().getNormalRays().forEach((ray) -> {
-             vecField.addVector(ray.getPosFrom(), ray.getPosTo().minus(ray.getPosFrom()).multiply(-1.0f), new Vector3(0.0f, 0.0f, 1.0f));
-         });
+         drawRaysList(vecField,  rayTraceCalc.getSrcRays().getRefractedRays(), new Vector3(0.0f, 1.0f, 0.0f));
+         //rayTraceCalc.getSrcRays();
+      
+         drawRaysGen(vecField, rayTraceCalc.getResult(1));
+         drawRaysGen(vecField, rayTraceCalc.getResult(0));
          vecField.init();
          
          sceneObjects.put("VectorField", vecField);
@@ -118,7 +125,7 @@ public class RayTracing2dScene extends Scene{
      public void init() throws LoadResourseException{
          this.cameraPosVector = new Vector3(0f, 0.0f, 4.0f);
          super.init();
- createLense();
+         createLense();
          this.loadHeadModel();
          initVecField();
         

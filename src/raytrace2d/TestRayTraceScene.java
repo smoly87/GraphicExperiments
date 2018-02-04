@@ -16,21 +16,25 @@ public class TestRayTraceScene extends RayTraceScene{
     protected ArrayList<RaysSource> res ;
     
     public void init(){
-        RayTraceSurface sphere = new RayTraceSurfaceSphere(0, 0, 1);
+        RayTraceSurface sphere = new RayTraceSurfaceSphere(0, 0, 0.5f);
         sphere.setRefractKoof(1.8f);
         this.addSurface(sphere);
         
         double ang = -Math.PI/3;
-        this.addRay(new Ray(new Vector3(-1, 1, 0), new Vector3((float)Math.cos(ang), (float)Math.sin(ang), 0)));
+       // this.addRay(new Ray(new Vector3(-0.7f, 0.7f, 0), new Vector3((float)Math.cos(ang), (float)Math.sin(ang), 0)));
+       // this.addRay(new Ray(new Vector3(-0.7f, 0.7f, 0), new Vector3((float)Math.cos(ang-Math.PI/12), (float)Math.sin(ang-Math.PI/12), 0)));
+        //this.addRay(new Ray(new Vector3(-0.7f, 0.5f, 0), new Vector3((float)Math.cos(ang), (float)Math.sin(ang), 0)));
         
-        res = this.calculate(1);
+        this.addRay(new Ray(new Vector3(-0.7f, 0.1f, 0), new Vector3(1.0f, 0, 0)));
+         this.addRay(new Ray(new Vector3(-0.7f, 0.05f, 0), new Vector3(1.0f, 0, 0)));
+        res = this.calculate(2);
         
       
         
     }
     
-    public RaysSource getResult(){
-          RaysSource firstGen = res.get(0);
+    public RaysSource getResult(int iterNum){
+          RaysSource firstGen = res.get(iterNum);
           return firstGen;
     }
 }

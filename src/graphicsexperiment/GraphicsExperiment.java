@@ -112,8 +112,8 @@ public class GraphicsExperiment  implements GLEventListener {
         
         try {
             //scene = new TestScene(gl);
-           // scene = new GlassScene(gl);
-            scene = new RayTracing2dScene(gl);
+              scene = new GlassScene(gl);
+           // scene = new RayTracing2dScene(gl);
             
             // scene.init();
         } catch (LoadResourseException ex) {

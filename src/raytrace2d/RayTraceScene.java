@@ -86,14 +86,14 @@ public class RayTraceScene {
         return reflectedRay;
     }
     
-    protected void calcSurfaceRays(RaysSource resRays, LinkedList<Ray> curRays,  RayTraceSurface surface){
+    protected void calcSurfaceRays(RaysSource resRays, LinkedList<Ray> curRays,  RayTraceSurface surface, boolean calcRefl){
         for(Ray ray:curRays){
            IntersectResult intersecRes =  surface.calculateIntersection(ray);
            if(intersecRes != null){
                resRays.getNormalRays().add(new Ray(intersecRes.getPos(), intersecRes.getNormal()));
                ray.posTo = intersecRes.getPos();
                
-               resRays.getReflectedRays().add(calcReflectedRay(intersecRes, ray));
+               if(calcRefl) resRays.getReflectedRays().add(calcReflectedRay(intersecRes, ray));
                resRays.getRefractedRays().add(calcRefractedRay(intersecRes, ray, surface));
            }
         }
@@ -106,8 +106,8 @@ public class RayTraceScene {
         for(int i=0;i<iterCount;i++){
            RaysSource curRes = new RaysSource();
            for(RayTraceSurface surface: surfaces){
-               calcSurfaceRays(curRes, curRays.getRefractedRays(), surface);
-               calcSurfaceRays(curRes, curRays.getReflectedRays(), surface);
+               calcSurfaceRays(curRes, curRays.getRefractedRays(), surface, false);
+            //   calcSurfaceRays(curRes, curRays.getReflectedRays(), surface, true);
            }
            curRays = curRes;
            raysGens.add(curRes);

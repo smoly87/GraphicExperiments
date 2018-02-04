@@ -11,6 +11,9 @@ import com.jogamp.opengl.util.texture.TextureData;
 import com.jogamp.opengl.util.texture.TextureIO;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.Buffer;
+import javax.media.opengl.GL;
+import static javax.media.opengl.GL.GL_TEXTURE_CUBE_MAP;
 import javax.media.opengl.GL3;
 import javax.media.opengl.GL4;
 import static javax.media.opengl.GL4.*;
@@ -50,4 +53,32 @@ public class CubeMapTexture {
 
     return cubemap;
   }
+  
+  
+  public static Texture loadFromStreamsGl(GL4 gl,
+                                        ClassLoader scope,
+                                        String basename,
+                                        String suffix, boolean mipmapped) throws IOException, GLException {
+    Texture cubemap = TextureIO.newTexture(GL_TEXTURE_CUBE_MAP);
+
+    for (int i = 0; i < suffixes.length; i++) {
+      String resourceName = basename + suffixes[i] + "." + suffix;
+      String fileSuffix = IOUtil.getFileSuffix(resourceName);
+      InputStream stream = scope.getResourceAsStream(resourceName.substring(1));
+      TextureData data = TextureIO.newTextureData(GLContext.getCurrentGL().getGLProfile(), stream,
+                                                  mipmapped,
+                                                  null);
+      if (data == null) {
+        throw new IOException("Unable to load texture " + resourceName);
+      }
+      cubemap.updateImage(gl, data, targets[i]);
+     
+     
+    }
+
+    return cubemap;
+  }
+  
+  
+ 
 }
