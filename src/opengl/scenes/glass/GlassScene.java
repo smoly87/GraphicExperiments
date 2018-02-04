@@ -73,6 +73,7 @@ public class GlassScene extends Scene{
        //  
         //Pay attention to FOV and possibly orthogonal projection
         colorMapPass.bindFbo();
+        gl.glViewport(0, 0, 1024, 1024);
         for(int i = 0; i < 6; i++){
            ////////////  gl.glClear(gl.GL_DEPTH_BUFFER_BIT); 
             int faceId = GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X+i;//GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
@@ -87,6 +88,7 @@ public class GlassScene extends Scene{
         }
          colorMapPass.unBindFbo();
         glass.setOptRenderEnabled(renderFlag);
+        gl.glViewport(0, 0, 1024, 768);
     }
 
     public GlassScene(GL4 gl) throws LoadResourseException {
@@ -198,7 +200,7 @@ public class GlassScene extends Scene{
      
      protected SceneObject addBox(Vector3 pos, String texture){
          SceneObject box = loadBox("box_" + boxNum, texture , pos );
-         box.bodyScale(2.0f);
+         box.bodyScale(4.0f);
          boxNum++;
          //box.bodyRotateZ((float)Math.PI);
          return box;
@@ -206,6 +208,7 @@ public class GlassScene extends Scene{
      
      protected void addSidesBoxes(){
          addBox(new Vector3(0.0f, 0.5f,-2.0f),"uv_checker large_flip.jpg");
+         addBox(new Vector3(0.0f, 0.5f,2.0f),"uv_checker large_flip.jpg").bodyRotateY((float)Math.PI);
          
          addBox(new Vector3(2.0f, 0.5f, 0.0f), "uv_checker large_flip_R.jpg").bodyRotateY(-(float)Math.PI/2);
          addBox(new Vector3(-2.0f, 0.5f, 0.0f),"uv_checker large_flip_L.jpg").bodyRotateY((float)Math.PI/2);
@@ -220,6 +223,12 @@ public class GlassScene extends Scene{
          SceneObject floor = loadBox("floor", "floor_diffuse.tga", new Vector3(0.0f, -0.5f,0.0f));
          floor.bodyRotateX(-(float)Math.PI/2.0f);
          floor.bodyScale(4.0f);
+         
+         SceneObject ceiling = loadBox("ceiling", "floor_diffuse.tga", new Vector3(0.0f, 1.5f,0.0f));
+         ceiling.bodyRotateX((float)Math.PI/2.0f);
+         ceiling.bodyScale(4.0f);
+         
+         
          addSidesBoxes();
         createGlass();
       // this.loadSkybox();
@@ -231,9 +240,11 @@ public class GlassScene extends Scene{
 
      protected void createGlass(){
         SceneObject sphere = new SceneObject(this.gl);
+        sphere.setModelFile("african_head.obj");
+        //SceneObject sphere = new Sphere(gl);
         sphere.setTextureFile("uv_checker large.jpg");
         
-        sphere.setModelFile("african_head.obj");
+        //
         //sphere.optLoadTexture = false;
         sphere.setShaderProgName("glass");
         sphere.init();
