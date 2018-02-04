@@ -70,18 +70,22 @@ public class GlassScene extends Scene{
         glass.setOptRenderEnabled(false);
                 
         this.setStandartRenderVariables(colorMapPass);
-       
+       //  
         //Pay attention to FOV and possibly orthogonal projection
+        colorMapPass.bindFbo();
         for(int i = 0; i < 6; i++){
-            int faceId = GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
+           ////////////  gl.glClear(gl.GL_DEPTH_BUFFER_BIT); 
+            int faceId = GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X+i;//GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i;
             Matrix faceMatr = cubeMatrixes.getViewForFace(faceId);
             faceMatr = new ViewTransformations(faceMatr, glassObjPos).getViewMatrix();
             colorMapPass.setViewMatrix(faceMatr);
+            colorMapPass.setProjectionMatrix(projectionMatrixOrtho);
             colorMapPass.setFaceId(faceId);
             colorMapPass.render();
+        
+           
         }
-        
-        
+         colorMapPass.unBindFbo();
         glass.setOptRenderEnabled(renderFlag);
     }
 
@@ -90,7 +94,7 @@ public class GlassScene extends Scene{
         this.lightPosition = new Vector3(3.0f, 0.0f, 3.0f);
         this.camRotVec = new Vector3();
         this.cameraPosVector = new Vector3(0.0f, 0.0f, 3.0f);
-        this.fieldOfView = 90;
+      
       
         startTime = System.currentTimeMillis();
         
@@ -104,7 +108,7 @@ public class GlassScene extends Scene{
         
         mainRender.setOptColorMapping(optColorMapping);
         mainRender.setOptShadowMapping(optShadowMapping);
-        projectionMatrixOrtho = SceneCalculations.calcProjOrtoMatrix(1024, 768, fieldOfView, Zfar, Znear);
+        projectionMatrixOrtho = SceneCalculations.calcProjMatrix(1024, 768, 90, Zfar, Znear);
         
         cubeMatrixes = new CubeMapViewMatrixes();
     }
@@ -218,7 +222,7 @@ public class GlassScene extends Scene{
          floor.bodyScale(4.0f);
          addSidesBoxes();
         createGlass();
-       this.loadSkybox();
+      // this.loadSkybox();
        //  initScreen();
          //this.loadHeadModel();
        //  this.loadQuad();

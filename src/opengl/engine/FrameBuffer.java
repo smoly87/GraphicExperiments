@@ -208,7 +208,16 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
     }
     
     public void bindCubeTexture(int texId, int faceId){
-        gl.glFramebufferTexture2D( GL_FRAMEBUFFER, bufferTexturePurpose, faceId, texId, 0);
+    //    gl.glViewport(0, 0,width , height);
+        gl.glBindFramebuffer(GL2ES3.GL_DRAW_FRAMEBUFFER, FBoBuffers.get(0)); 
+        gl.glFramebufferTexture2D( GL2ES3.GL_DRAW_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, faceId, texId, 0);
+        gl.glDrawBuffer(GL.GL_COLOR_ATTACHMENT0);
+        gl.glClear(gl.GL_DEPTH_BUFFER_BIT);
+         int status =  gl.glCheckFramebufferStatus(GL_FRAMEBUFFER);
+       if (status != gl.GL_FRAMEBUFFER_COMPLETE) {
+            System.out.println("FrameBuffer Error:" + status + gl.glGetString(gl.glGetError()));
+            
+        }
     }
     
     protected void createFrameBuffer(){
@@ -220,7 +229,8 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
         } else{
            // for(int i=0;i<6;i++){
              gl.glFramebufferTexture2D( GL_FRAMEBUFFER, bufferTexturePurpose, GL4.GL_TEXTURE_CUBE_MAP_POSITIVE_X, textureId, 0); 
-            //}
+           // //}
+           //gl.glFramebufferTexture( GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, textureId, 0);
         }
         
         //gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
@@ -250,6 +260,8 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
         if(!useDrawBuffer) {
             gl.glDrawBuffer(gl.GL_NONE);
             gl.glReadBuffer(gl.GL_NONE);
+        } else{
+            gl.glDrawBuffer(gl.GL_COLOR_ATTACHMENT0);
         }
         
         
@@ -289,12 +301,12 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
     }
     
     public void bindFBO(){
-        gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
-       
-         gl.glClear(clearFlag);
-         
-        gl.glViewport(0,0,1024,768); 
-          if(useDrawBuffer)gl.glDrawBuffer(GL.GL_COLOR_ATTACHMENT0);//
+        
+        // gl.glViewport(0,0,1024,1024);
+        
+         gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
+        gl.glClear(GL.GL_DEPTH_BUFFER_BIT|gl.GL_COLOR_BUFFER_BIT);
+        if(useDrawBuffer)gl.glDrawBuffer(GL.GL_COLOR_ATTACHMENT0);//
        
     }
     
@@ -318,9 +330,9 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
         int texLoc = gl.glGetUniformLocation(prog.getProgramId(), "fboTexture");
         if(texLoc == -1) throw new EngineException("CubeMap texture was not founded in shader program!");
 
-        gl.glUniform1i(texLoc, GL4.GL_TEXTURE1);
+        gl.glUniform1i(texLoc, GL4.GL_TEXTURE0);
         gl.glEnable(GL.GL_TEXTURE_CUBE_MAP);
-        gl.glActiveTexture(GL.GL_TEXTURE1);
+        gl.glActiveTexture(GL.GL_TEXTURE0);
         gl.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, textureId);
         gl.glActiveTexture(0);
     }

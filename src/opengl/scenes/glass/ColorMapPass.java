@@ -22,8 +22,10 @@ import opengl.engine.SceneObject;
  */
 public class ColorMapPass extends RenderPass{
     protected FrameBuffer colorBuf;
- protected int faceId;
+    protected int faceId;
+    protected boolean useGeomShader;
 
+    
     public int getFaceId() {
         return faceId;
     }
@@ -33,12 +35,20 @@ public class ColorMapPass extends RenderPass{
     }
     @Override
     public void render() {
-        colorBuf.bindFBO();
+       // colorBuf.bindFBO();
         colorBuf.bindCubeTexture(colorBuf.getTextureId(), this.getFaceId());
+         gl.glClear(GL.GL_DEPTH_BUFFER_BIT|gl.GL_COLOR_BUFFER_BIT);
         super.render(); 
-        colorBuf.unbind();
+        //colorBuf.unbind();
     }
    
+    public void bindFbo(){
+        colorBuf.bindFBO();
+    }
+    
+    public void unBindFbo(){
+        colorBuf.unbind();
+    }
     public ColorMapPass(Scene scene) throws LoadResourseException {
         super(scene);
         this.colorBuf = createColorBuffer();
@@ -50,10 +60,10 @@ public class ColorMapPass extends RenderPass{
          CubeMapTexture cubeMapTex = new CubeMapTexture(gl);
         
         // ??????? What should it be?
-        cubeMapTex.setInternalFormat(GL.GL_RGB);
+        cubeMapTex.setInternalFormat(GL.GL_RGBA);
         cubeMapTex.setTextureFaceWidth(1024);
-        cubeMapTex.setTextureFaceWidth(1024);
-        cubeMapTex.setFillWithMock(true);
+        cubeMapTex.setTextureFaceHeight(1024);
+        cubeMapTex.setFillWithMock(false);
         
         cubeMapTex.init();
         return cubeMapTex.getTextureId();
@@ -66,7 +76,7 @@ public class ColorMapPass extends RenderPass{
        int textureId = createCubeTexture();
        colorBuffer.setTextureId(textureId);
        
-       colorBuffer.setClearFlag(GL.GL_DEPTH_BUFFER_BIT);
+       colorBuffer.setClearFlag(GL.GL_DEPTH_BUFFER_BIT);//|GL.GL_COLOR_BUFFER_BI
        colorBuffer.setBufferTexturePurpose(GL.GL_COLOR_ATTACHMENT0);
        colorBuffer.setTexturePurpose1(GL.GL_RGB);
        colorBuffer.setTexturePurpose2(GL.GL_RGB);

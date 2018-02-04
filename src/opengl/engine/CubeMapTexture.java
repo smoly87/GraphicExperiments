@@ -90,7 +90,7 @@ public class CubeMapTexture {
     }
     
     protected void setFaceProp(int faceId, Buffer data){
-         gl.glTexImage2D(faceId, 0, internalFormat, textureFaceWidth, textureFaceHeight, 0, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, data);
+         gl.glTexImage2D(faceId, 0, internalFormat, textureFaceWidth, textureFaceHeight, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, data);
     }
 
     public void init(){
