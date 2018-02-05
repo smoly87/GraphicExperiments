@@ -186,6 +186,10 @@ public class FrameBuffer {
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         
+        
+        /*gl.glTexParameteri(GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_FUNC, gl.GL_LEQUAL);
+gl.glTexParameteri (GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_MODE, gl.GL_NONE);
+       // gl.glTexParameteri (GL_TEXTURE_2D, gl.GL_TEXTURE_COMPARE_MODE, gl.GL_NONE);
        /* gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL2GL3.GL_CLAMP_TO_BORDER);
         gl.glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL2GL3.GL_CLAMP_TO_BORDER);*/
         
@@ -225,7 +229,8 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
        
         if(this.getTextureId() < 1){
            textureId = createFboTexture();  
-           gl.glFramebufferTexture2D(GL_FRAMEBUFFER, bufferTexturePurpose, GL_TEXTURE_2D, textureId, 0);
+           //gl.glFramebufferTexture2D(GL_FRAMEBUFFER, bufferTexturePurpose, GL_TEXTURE_2D, textureId, 0);
+           gl.glFramebufferTexture(GL_FRAMEBUFFER, bufferTexturePurpose,  textureId, 0);
         } else{
            // for(int i=0;i<6;i++){
              gl.glFramebufferTexture2D( GL_FRAMEBUFFER, bufferTexturePurpose, GL4.GL_TEXTURE_CUBE_MAP_POSITIVE_X, textureId, 0); 
@@ -302,16 +307,18 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
     
     public void bindFBO(){
         
-        // gl.glViewport(0,0,1024,1024);
+        gl.glViewport(0,0, width, height);
         
-         gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
-        gl.glClear(GL.GL_DEPTH_BUFFER_BIT|gl.GL_COLOR_BUFFER_BIT);
+        gl.glBindFramebuffer(GL_FRAMEBUFFER, FBoBuffers.get(0));
+        gl.glClear(clearFlag);
         if(useDrawBuffer)gl.glDrawBuffer(GL.GL_COLOR_ATTACHMENT0);//
        
     }
     
     public void unbind(){
+        MainConfig config = MainConfig.getInstance();
         gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        gl.glViewport(0,0, config.getScreenWidth(), config.getScreenHeight());
     }
     
 

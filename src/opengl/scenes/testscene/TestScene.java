@@ -87,8 +87,8 @@ public class TestScene extends Scene{
       
         startTime = System.currentTimeMillis();
         
-        optColorMapping = true;
-        optShadowMapping = false;
+        optColorMapping = false;
+        optShadowMapping = true;
         
         colorMapPass = new ColorMapPass(this);
         depthMapPass = new DepthMapPass(this);

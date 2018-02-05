@@ -76,7 +76,7 @@ public class ColorMapPass extends RenderPass{
        int textureId = createCubeTexture();
        colorBuffer.setTextureId(textureId);
        
-       colorBuffer.setClearFlag(GL.GL_DEPTH_BUFFER_BIT);//|GL.GL_COLOR_BUFFER_BI
+       colorBuffer.setClearFlag(GL.GL_DEPTH_BUFFER_BIT|gl.GL_COLOR_BUFFER_BIT);//|GL.GL_COLOR_BUFFER_BI
        colorBuffer.setBufferTexturePurpose(GL.GL_COLOR_ATTACHMENT0);
        colorBuffer.setTexturePurpose1(GL.GL_RGB);
        colorBuffer.setTexturePurpose2(GL.GL_RGB);
