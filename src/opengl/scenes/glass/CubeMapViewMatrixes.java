@@ -10,6 +10,7 @@ import math.linearAlgebra.Matrix;
 import math.transformMatricies4.MatrixRotationX;
 import math.transformMatricies4.MatrixRotationY;
 import math.transformMatricies4.MatrixRotationZ;
+import math.transformMatricies4.MatrixUnit;
 
 /**
  *
@@ -31,19 +32,21 @@ public class CubeMapViewMatrixes {
                M = new MatrixRotationY(PI / 2);
                 break;
             case GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
-               M = new MatrixRotationX(-PI / 2); 
+               M = new MatrixRotationX(PI / 2); 
                 break;
             case GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
-                M = new MatrixRotationX(PI / 2);
+                M = new MatrixRotationX(-PI / 2);
                 break;    
             case GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
-               M = new MatrixRotationX(0.0f );
+              M = new MatrixRotationY(PI);
                 break; 
             case GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
-                M = new MatrixRotationY(PI);
+                 M = new MatrixRotationX(0.0f );
                 break;     
         }
         
-        return M;
+        Matrix f = new MatrixRotationZ(PI);
+        //f.values[1][1] = -1;
+        return M.multiply(f);
     }
 }

@@ -335,7 +335,7 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
      public void setTextureCubeMap(GLSLProgramObject prog) throws EngineException {
         // GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
         int texLoc = gl.glGetUniformLocation(prog.getProgramId(), "fboTexture");
-        if(texLoc == -1) throw new EngineException("CubeMap texture was not founded in shader program!");
+//        if(texLoc == -1) throw new EngineException("CubeMap texture was not founded in shader program!");
 
         gl.glUniform1i(texLoc, GL4.GL_TEXTURE0);
         gl.glEnable(GL.GL_TEXTURE_CUBE_MAP);

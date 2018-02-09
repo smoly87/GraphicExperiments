@@ -33,6 +33,6 @@ void main(){
     TexCoord0 = position.xyz;
    /* viewDir = vec3(( modelMatrix * position).xyz - cameraPosW);
 	N = (normalMatrix * vec4(vertexNormal, 0.0)).xyz;*/
-	viewDir = vec3(( modelMatrix * position).xyz - cameraPosW);
-	N = (transpose(inverse(modelMatrix)) * vec4(vertexNormal, 1.0)).xyz;
+	viewDir = ( modelMatrix * position).xyz -cameraPosW;
+	N = (modelMatrix*vec4(vertexNormal, 0.0)).xyz;//(transpose(inverse(modelMatrix)) * vec4(vertexNormal, 1.0)).xyz;
 }

@@ -80,7 +80,7 @@ public class RenderPass {
     protected void setCommonVarsToShaderProgram(GL4 gl, GLSLProgramObject programObject){
 
         programObject.setUniform(gl, "light.position", lightPosition.values, 3);
-        programObject.setUniform(gl, "viewDir", cameraPosVector.normalise().values, 3);
+        programObject.setUniform(gl, "cameraPosW", cameraPosVector.values, 3);
        // setLightsProps(gl3, programObject);
     } 
     

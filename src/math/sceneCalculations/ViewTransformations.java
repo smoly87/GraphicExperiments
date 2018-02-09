@@ -102,7 +102,7 @@ public class ViewTransformations {
     }
     
     public Vector3 getPosVectorAbsBasis() {
-        return viewMatrix.multiply(posVectorCurBasis.toVector4()).toVector3();
+        return viewMatrix.inverse().multiply(posVectorCurBasis.toVector4()).toVector3();
     }
     
 

@@ -409,7 +409,7 @@ public class Scene implements KeyListener{
     protected void recalcViewMatrix(){
         
         viewMatrix = viewTrasnform.getViewMatrix();
-        //System.out.println(viewTrasnform.getPosVectorCurBasis() + " and abs is " + viewTrasnform.getPosVectorAbsBasis());
+        System.out.println(viewTrasnform.getPosVectorCurBasis() + " and abs is " + viewTrasnform.getPosVectorAbsBasis());
         cameraPosVector = viewTrasnform.getPosVectorAbsBasis();
         //cameraPosVector = new Vector3();
      }
