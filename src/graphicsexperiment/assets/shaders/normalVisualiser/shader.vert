@@ -20,15 +20,16 @@ uniform mat4 MVP;
 struct Vertex{
    vec4 position;
    vec2 textureUV;
-   vec3 normal;
+   vec4 normal;
+   vec3 normalEnd;
    vec3 tanget;
 };
 
 out Vertex vertex;
 
 void main(){
-    gl_Position = position; 
-    vertex.position = gl_Position;
-	vec4 newNorm =  normalMatrix * vec4(vertexNormal, 0.0);	
-	vertex.normal = newNorm.xyz;// newNorm.xyz; //vec3(newNorm.xy, 0.0);
+    gl_Position = MVP*position; 
+    vertex.position = position;
+	vec4 newNorm =  transpose(inverse(viewMatrix*modelMatrix)) * vec4(vertexNormal, 0.0);	
+	vertex.normal = newNorm;
 }

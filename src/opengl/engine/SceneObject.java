@@ -221,8 +221,9 @@ public class SceneObject {
          programObject.setUniform(gl, "projectionMatrix", projectionMatrix);
          Matrix modelMatrix = getModelMatrix();
          Matrix viewModel = viewMatrix.multiply(modelMatrix);
-         programObject.setUniform(gl, "normalMatrix", (viewModel.inverse()));//.transpose()
-         programObject.setUniform(gl, "MVP", projectionMatrix.multiply(viewModel)) ;  
+         Matrix MVP = projectionMatrix.multiply(viewModel);
+         programObject.setUniform(gl, "normalMatrix", ((modelMatrix.inverse()).transpose()));//.transpose()
+         programObject.setUniform(gl, "MVP", MVP) ;  
 
     }
     
@@ -487,10 +488,11 @@ public class SceneObject {
        this.shadersPrograms.put(shaderProgName, prog);
     }
     
-    public void addShaderProgram(String folder, String progName, ShaderProgOptions options) throws LoadResourseException{
-        //GLSLProgramObject shaderProg  = GLProgramBuilder.buildProgram(gl, assetsFilepath + folder, true, true, geometryShaderLoad);
-        GLSLProgramObject shaderProg = shadersStore.getShaderProgram(progName, options);
-        this.shadersPrograms.put(progName, shaderProg);
+    public void addShaderProgram( String progName, ShaderProgOptions options) throws LoadResourseException{
+       ShadersStore shadersStrore =  ShadersStore.getInstance();
+       
+       GLSLProgramObject prog = shadersStrore.getShaderProgram(progName, options);
+       this.shadersPrograms.put(progName, prog);
     }
     
     private Texture initializeTexture(String textureFile, String fileType) throws LoadResourseException{

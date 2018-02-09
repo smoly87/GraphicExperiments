@@ -100,6 +100,11 @@ public class ViewTransformations {
     public Vector3 getPosVectorCurBasis() {
         return posVectorCurBasis;
     }
+    
+    public Vector3 getPosVectorAbsBasis() {
+        return viewMatrix.multiply(posVectorCurBasis.toVector4()).toVector3();
+    }
+    
 
     public void setPosVectorByAbsBasis(){
         

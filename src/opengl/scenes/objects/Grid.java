@@ -134,7 +134,7 @@ public class Grid extends SceneObject{
         Vector3 n2 = (p0.minus(p2)).cross( p1.minus(p2));
         
         return  new Vector3[]{
-           n0.normalise(), n0.normalise(), n0.normalise()
+           n0.normalise(), n1.normalise(), n2.normalise()
         };
         
     }

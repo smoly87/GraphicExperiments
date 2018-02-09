@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package opengl.scenes.testscene;
+package opengl.engine;
 
 import engine.exception.LoadResourseException;
 import java.util.HashMap;

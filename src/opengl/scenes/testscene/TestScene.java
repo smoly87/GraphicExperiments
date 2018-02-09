@@ -5,6 +5,7 @@
  */
 
 package opengl.scenes.testscene;
+import opengl.engine.DepthMapPass;
 import engine.exception.LoadResourseException;
 import engine.mesh.Mesh;
 import java.util.Map;
@@ -46,23 +47,10 @@ public class TestScene extends Scene{
     @Override
     public void performRenderPasses() {
        if(optColorMapping)this.performColorBuffRenderPass();
-       
-       if(optShadowMapping)this.performDepthBuffRenderPass();
-       this.performStandartRenderPass();
+       super.performRenderPasses();
     }
 
-    protected void performDepthBuffRenderPass(){
-        sceneObjects.get("screen").setOptRenderEnabled(false);
- gl.glEnable(GL3.GL_DEPTH_TEST);
-        Matrix lightView = getLightMVP();
-        lightMVP = new ViewTransformations(lightView, lightPosition).getViewMatrix();
-        this.setStandartRenderVariables(depthMapPass);
-        depthMapPass.setViewMatrix(lightMVP);
-        //depthMapPass.setProjectionMatrix(projectionMatrixOrtho);
-        depthMapPass.render();
-
-        sceneObjects.get("screen").setOptRenderEnabled(true);
-    }
+ 
     
     protected void performColorBuffRenderPass(){
         
@@ -81,7 +69,7 @@ public class TestScene extends Scene{
 
     public TestScene(GL4 gl) throws LoadResourseException {
         super(gl);
-        this.lightPosition = new Vector3(3.0f, 0.0f, 3.0f);
+        this.lightPosition = new Vector3(0.0f, 0.0f, 3.0f);
         this.camRotVec = new Vector3();
         this.cameraPosVector = new Vector3(0.0f, 0.0f, 3.0f);
       
@@ -114,9 +102,6 @@ public class TestScene extends Scene{
    }
      
     
-     protected void renderEnviromentMap(){
-         gl.glGenFramebuffers(1, fboEnvMap, 0);
-     }
      
      protected void  loadHeadModel(){
            SceneObject africanHead;
@@ -140,18 +125,7 @@ public class TestScene extends Scene{
            sceneObjects.put("head", africanHead);
         
      }
-      protected void  loadHeadModel2(){
-           SceneObject africanHead;
-           africanHead = new SceneObject(this.gl);
-           africanHead.setTextureFile("uv_checker large.png");
-           africanHead.setModelFile("sphere.obj");
-           africanHead.init();
-            africanHead.bodyTranlate(new Vector3(1.0f, 0.0f, -5.0f));
-           sceneObjects.put("head2", africanHead);
-        
-      }
-      
-      
+           
     protected SceneObject createSphere(Vector3 pos,float scale, String textFile){     
         SceneObject sphere = new Sphere(this.gl);
         sphere.setTextureFile(textFile);
@@ -161,95 +135,12 @@ public class TestScene extends Scene{
         sphere.bodyTranlate(pos);
         return sphere;
     }  
-    
-    protected void  loadLightVisualiser(){
-            
-      
-          // plane.bodyRotateX(-(float)Math.PI/2 );
-           sceneObjects.put("light", createSphere(lightPosition,1.0f, "uv_checker large.png"));
-        
-     }
 
-     protected void  loadCube(){
-           SceneObject plane;
-           plane = new Cube(this.gl);
-           plane.setTextureFile("uv_checker large.png");
-           //plane.setModelFile("floor.obj");
-           /*  try{
-               plane.addShaderProgram(plane.getShadersFilePath() + "normalVisualiser/", true, "NormVisualiser");
-           } catch(LoadResourseException e){
-               System.err.println("Load normal visualiser error");
-               System.err.println(e.getMessage());
-           }*/
-           plane.init();
-          plane.bodyScale(0.05f);
-           plane.bodyTranlate(lightPosition);
-          // plane.bodyRotateX(-(float)Math.PI/2 );
-           sceneObjects.put("cube", plane);
-        
+     protected void initSphere(){
+         
+        SceneObject sphere = createSphere(new Vector3(0.0f, 0.0f, 2.0f), 0.1f, "uv_checker large.png");
+         sceneObjects.put("sphere", sphere);
      }
-      protected void  loadQuad(){
-           SceneObject plane;
-           plane = new Quad(this.gl);
-           plane.setTextureFile("uv_checker large.png");
-           //plane.setModelFile("floor.obj");
-           /*  try{
-               plane.addShaderProgram(plane.getShadersFilePath() + "normalVisualiser/", true, "NormVisualiser");
-           } catch(LoadResourseException e){
-               System.err.println("Load normal visualiser error");
-               System.err.println(e.getMessage());
-           }*/
-           plane.init();
-        //  plane.bodyScale(0.5f);
-          // plane.bodyTranlate(lightPosition);
-          // plane.bodyRotateX(-(float)Math.PI/2 );
-           sceneObjects.put("cube", plane);
-        
-     }
-      protected void  loadSkybox(){
-           
-           SceneObject skybox = new Skybox(this.gl);
-           //plane.setTextureFile("uv_checker large.png");
-           //plane.setModelFile("floor.obj");
-           skybox.init();   
-           skybox.bodyTranlate(cameraPosVector);
-        
-            skybox.bodyScale(20f);
-          // plane.bodyRotateX(-(float)Math.PI/2 );
-           sceneObjects.put("skybox", skybox);
-        
-     }
-     
-     protected void loadGrid(){
-         /*Grid item = new Grid(gl, 1);
-         item.setTextureFile("uv_checker large.png");
-         item.init();   
-         
-         sceneObjects.put("grid", item);
-         
-         Mesh mesh = item.getMesh();
-         VectorField vecField = new VectorField(gl);
-         
-         vecField.addVector(new Vector3(1, 0, 2), new Vector3(0, 1, 0), new Vector3(0.5f, 0.5f, 0.5f));
-         
-         vecField.setVertexes(mesh.getVertexesCoords());
-         vecField.setVertexData(mesh.getNormalsCoords());//getNormalsCoords*/
-         //vecField.init();
-       // loadLightVisualiser();
-        /*loadHeadModel();
-        SceneObject sph =  createSphere(new Vector3(0.0f, 0.0f,6.0f),0.2f, "uv_checker large.jpg");
-        sceneObjects.put("sph", sph);
-        initScreen();*/
-       
-         /*CompShaderFiction shad = new CompShaderFiction(gl);
-         shad.setTextureFile("uv_checker large.png");
-         shad.init();
-         sceneObjects.put("comp_shader", shad);*/
-         
-     }
-    
-     
-    
      protected void initScreen(){
            SceneObject screenObj = new SceneObject(this.gl);
            screenObj = new Quad(this.gl);
@@ -261,32 +152,15 @@ public class TestScene extends Scene{
            sceneObjects.put("screen", screenObj);
      }
      
-     protected void initVecField(){
-         VectorField vecField = new VectorField(gl);
-        vecField.addVector( new Vector3(0.5f,0.0f, 0.0f),new Vector3(0.0f, 1.0f, 0.0f), new Vector3(1.0f, 1.0f, 1.0f));
-       // vecField.addVector( new Vector3(0.0f, 1.0f, 0.0f),new Vector3(0.0f,0.0f, 0.0f), new Vector3(0.5f, 0.8f, 0.5f));
-       //  vecField.addVector(new Vector3(0, 0, 0), new Vector3(1, 0, 0), new Vector3(0.5f, 0.5f, 0.5f));
-       //  vecField.addVector(new Vector3(1, 0, 1), new Vector3(1, 0, 0), new Vector3(0.5f, 0.5f, 0.5f));
-         vecField.init();
-         
-         sceneObjects.put("VectorField", vecField);
-     }
+   
      
      public void init() throws LoadResourseException{
          this.cameraPosVector = new Vector3(0f, 0.0f, 4.0f);
          super.init();
-       //  Vector3 upVec = new Vector3(0, 1, 0);
-       //  this.viewMatrix = SceneCalculations.lookAt( cameraPosVector, new Vector3(0,0, -2.0f) , upVec );
-         this.loadHeadModel();
-         initVecField();
+          this.loadHeadModel();
+         initSphere();
          initScreen();
-       //  this.loadSphere();
-        // this.loadCube();
-             //    System.out.println(cameraRot);
-       //this.loadCube();
-      // this.loadSkybox();
-        // loadHeadModel2();
-       // this.loadPlane();
+      
          
      }
      

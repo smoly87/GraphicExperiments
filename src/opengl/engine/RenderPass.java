@@ -7,9 +7,12 @@ package opengl.engine;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.media.opengl.GL4;
 import math.linearAlgebra.Matrix;
 import math.linearAlgebra.Vector3;
+import math.sceneCalculations.ViewTransformations;
 
 /**
  *
@@ -106,15 +109,23 @@ public class RenderPass {
            programObject.unbind(gl);
     }
     
-    protected void execObjShaderProg(GL4 gl, SceneObject sceneObj, String progName, GLSLProgramObject programObject){
- 
+    protected void setVariablesToShader(GL4 gl, SceneObject sceneObj, String progName, GLSLProgramObject programObject){
+        setStandartVariablesToShader(gl, sceneObj, progName, programObject);
+    }
+    
+    protected void setStandartVariablesToShader(GL4 gl,SceneObject sceneObj, String progName, GLSLProgramObject programObject){
         this.setCommonVarsToShaderProgram(gl, programObject);
         sceneObj.setGlobalMatricies(programObject, projectionMatrix, viewMatrix);
         sceneObj.setMaterialPropsToShader(programObject);
         sceneObj.setBodyPropsToShader(programObject);
 
-        setCommonVarsToShaderProgram(gl, programObject);
-        
+    }
+    
+    protected  void  execObjShaderProg(GL4 gl, SceneObject sceneObj, String progName, GLSLProgramObject programObject){
+ 
+        setVariablesToShader(gl, sceneObj, progName, programObject);
+
+       
         sceneObj.display(gl, programObject, progName);
         
     }

@@ -5,6 +5,7 @@
  */
 
 package opengl.scenes.glass;
+import com.sun.javafx.geom.PickRay;
 import opengl.scenes.glass.*;
 import engine.exception.LoadResourseException;
 import engine.mesh.Mesh;
@@ -22,6 +23,7 @@ import math.sceneCalculations.ViewTransformations;
 import opengl.engine.GLSLProgramObject;
 import opengl.engine.RenderPass;
 import opengl.engine.SceneObject;
+import opengl.engine.ShaderProgOptions;
 import opengl.scenes.objects.CompShaderFiction;
 import opengl.scenes.objects.Cube;
 import opengl.scenes.objects.Cylinder;
@@ -123,16 +125,19 @@ public class GlassScene extends Scene{
    }
      
          
-    protected void  loadHeadModel(){
+    protected void  loadHeadModel() throws LoadResourseException{
            SceneObject africanHead;
            africanHead = new SceneObject(this.gl);
            africanHead.setOptBumpMapping(false);
+           
+           //africanHead.addShaderProgram("normalVisualiser", new ShaderProgOptions(true));
+           
            africanHead.setBumpMappingTextureFile("african_head_nm_tangent.tga");
            africanHead.setTextureFile("african_head_diffuse.tga");
            africanHead.setModelFile("african_head.obj");
            
            africanHead.init();
-           africanHead.bodyTranlate(new Vector3(0.0f, 0.0f,-2.0f));
+           africanHead.bodyTranlate(new Vector3(0.0f, 0.0f,2.0f));
            sceneObjects.put("head", africanHead);
         
     }
@@ -233,22 +238,23 @@ public class GlassScene extends Scene{
         createGlass();
       // this.loadSkybox();
        //  initScreen();
-         //this.loadHeadModel();
+         this.loadHeadModel();
        //  this.loadQuad();
 
      }
 
-     protected void createGlass(){
+     protected void createGlass() throws LoadResourseException{
         SceneObject sphere = new SceneObject(this.gl);
-        sphere.setModelFile("african_head.obj");
-        //SceneObject sphere = new Sphere(gl);
+        sphere.setModelFile("sphere.obj");//african_head
+        //sphere = new Sp(gl);
         sphere.setTextureFile("uv_checker large.jpg");
-        
+        //sphere.addShaderProgram("normalVisualiser", new ShaderProgOptions(true));
         //
         //sphere.optLoadTexture = false;
         sphere.setShaderProgName("glass");
         sphere.init();
-        sphere.bodyScale(0.5f);
+        //sphere.bodyRotateY((float)Math.PI);
+        sphere.bodyScale(0.01f);
         sphere.bodyTranlate(glassObjPos);
         sceneObjects.put("glass", sphere);
      }

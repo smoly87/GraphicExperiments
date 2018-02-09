@@ -8,6 +8,8 @@ package opengl.engine;
 import java.util.HashMap;
 import java.util.Map;
 import javax.media.opengl.GL4;
+import math.linearAlgebra.Matrix;
+import math.sceneCalculations.ViewTransformations;
 
 /**
  *
@@ -31,6 +33,22 @@ public class RenderPassStandart extends RenderPass{
            programObject.unbind(gl);
            
          }
+    }
+
+    @Override
+    protected void setVariablesToShader(GL4 gl, SceneObject sceneObj, String progName, GLSLProgramObject programObject) {
+        super.setVariablesToShader(gl, sceneObj, progName, programObject); 
+         if(scene.optShadowMapping){
+          
+                Matrix lightView = scene.getLightMVP();
+                Matrix lightMVP = new ViewTransformations(lightView, scene.lightPosition).getViewMatrix();
+                programObject.setUniform(gl, "lightMVP", lightMVP);
+                
+                FrameBuffer depthBuff = scene.getFrameBuffersStorage().get("DepthBuffer");
+                depthBuff.setTexture(programObject);
+            
+        }
+        
     }
     
 }

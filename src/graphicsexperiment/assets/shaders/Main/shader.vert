@@ -10,6 +10,10 @@ uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 normalMatrix;
 
+uniform mat4 MVP;
+uniform mat4 lightMVP;
+uniform vec3 cameraPosW;
+
 struct Vertex{
    vec4 position;
    vec2 textureUV;
@@ -28,13 +32,14 @@ out vec3 light_position;
 out vec3 view_dir;
 out vec4 shadowCoord;
 
-uniform mat4 MVP;
-uniform mat4 lightMVP;
+
 void main(){
     vert.textureUV = vertexUV;
     gl_Position =  MVP * position; 
     vert.position = gl_Position;
-	vert.normal = (viewMatrix * vec4(vertexNormal, 0.0)).xyz;
+	/*mat4 normalV = inverse(transpose(viewMatrix*modelMatrix));
+	vert.normal = (normalV * vec4(vertexNormal, 1.0)).xyz;*/
+	vert.normal = (normalMatrix* vec4(vertexNormal, 1.0)).xyz;
 	vert.tanget = (viewMatrix * vec4(tanget, 0.0)).xyz;
 	//view_dir = (viewMatrix * vec4(0,0,1, 0)).xyz; 
 	light_position = (viewMatrix * vec4(light.position, 0.0)).xyz;

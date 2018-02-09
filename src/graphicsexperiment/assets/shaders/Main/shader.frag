@@ -71,17 +71,16 @@ void main(){
 	float visibility = 1.0;
 	//vec3 shadowCoordD = shadowCoord.xyz/shadowCoord.w;
 	
-	vec3 ProjCoords = shadowCoord.xyz ;
-    vec2 UVCoords;
-    UVCoords.x = 0.5 * ProjCoords.x + 0.5;
-    UVCoords.y = 0.5 * ProjCoords.y + 0.5;
-    float z = 0.5 * ProjCoords.z + 0.5;
-    float Depth = texture(fboTexture, UVCoords).x;
+	vec3 ProjCoords = shadowCoord.xyz/shadowCoord.w ;
+    vec3 UVCoords;
+    UVCoords = 0.5 * ProjCoords + 0.5;
+	
+    float Depth = texture(fboTexture, UVCoords.xy).r;
    // if (Depth < (z + 0.00001))
 	
 	
-    if (  Depth < (z + 0.00001)){
-          visibility = 0.4;
+    if (  (UVCoords.z - 0.00001) < Depth){
+          visibility = 0.1;
     }
 	/*float depthValue = texture(shadowTexture, shadowCoordD.xy).r;
     outputColor = vec4(vec3(depthValue), 1.0);*/

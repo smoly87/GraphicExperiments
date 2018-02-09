@@ -18,6 +18,7 @@ public class Sphere extends Grid{
         super(gl, 20);      
     }
     
+    @Override
     protected VertexInfo surfacePointToXYZ(float u, float v){
         VertexInfo res = new VertexInfo();
         

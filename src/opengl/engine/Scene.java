@@ -106,6 +106,8 @@ public class Scene implements KeyListener{
     
     protected HashMap<String, FrameBuffer> frameBuffersStorage;
 
+    protected DepthMapPass depthMapPass;
+    
     public HashMap<String, FrameBuffer> getFrameBuffersStorage() {
         return frameBuffersStorage;
     }
@@ -140,7 +142,7 @@ public class Scene implements KeyListener{
         programObject.setUniform(gl, "projectionMatrix", projectionMatrix);
         
         programObject.setUniform(gl, "light.position", lightPosition.values, 3);
-        programObject.setUniform(gl, "viewDir", cameraPosVector.normalise().values, 3);
+        programObject.setUniform(gl, "cameraPosW", cameraPosVector.values, 3);
        // setLightsProps(gl3, programObject);
     }
     public void init() throws LoadResourseException{
@@ -159,6 +161,7 @@ public class Scene implements KeyListener{
         
         if(optShadowMapping){
         //    initShadowMapProg();
+          depthMapPass = new DepthMapPass(this);
         }
         //calcCameraMatrix();
         //createLight(gl3);
@@ -198,24 +201,42 @@ public class Scene implements KeyListener{
     
     public void display(GLAutoDrawable glad){
         GL4 gl = glad.getGL().getGL4();
-        prepareGlSettings(gl);
-        /*if(optShadowMapping){
-            
-            sceneObjects.get("screen").setOptRenderEnabled(false);
-            renderShadowMap();
-            sceneObjects.get("screen").setOptRenderEnabled(true);
-        }*/
-        
+        prepareGlSettings(gl); 
         performRenderPasses();
         glad.swapBuffers();
     }
     
     public void performRenderPasses(){
+        if(optShadowMapping)this.performDepthBuffRenderPass();
         performStandartRenderPass();
     }
     
+    
+    protected void performDepthBuffRenderPass(){
+        boolean flag = false;
+        if(sceneObjects.containsKey("screen")){
+            flag = sceneObjects.get("screen").isOptRenderEnabled();
+            sceneObjects.get("screen").setOptRenderEnabled(false);
+        }
+        
+        gl.glEnable(GL3.GL_DEPTH_TEST);
+        Matrix lightView = getLightMVP();
+        lightMVP = new ViewTransformations(lightView, lightPosition).getViewMatrix();
+        this.setStandartRenderVariables(depthMapPass);
+        depthMapPass.setViewMatrix(lightMVP);
+        //depthMapPass.setProjectionMatrix(projectionMatrixOrtho);
+        depthMapPass.render();
+
+        if(sceneObjects.containsKey("screen")){
+            sceneObjects.get("screen").setOptRenderEnabled(flag);
+        }
+        
+    }
+       
+       
     public void performStandartRenderPass(){
-       gl.glClear(GL4.GL_COLOR_BUFFER_BIT|gl.GL_DEPTH_BUFFER_BIT); //  
+
+        gl.glClear(GL4.GL_COLOR_BUFFER_BIT|GL4.GL_DEPTH_BUFFER_BIT);  
         gl.glEnable(GL4.GL_TEXTURE_CUBE_MAP);
         
         this.setStandartRenderVariables(renderPassStandart);
@@ -246,32 +267,7 @@ public class Scene implements KeyListener{
         
    
     
-    protected void renderShadowMap(){
- 
-        Matrix lightView = getLightMVP();
-        lightMVP = new ViewTransformations(lightView, lightPosition).getViewMatrix();
-        GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
-       
-        shadowBuf.bindFBO();
-        
-        gl.glClear(GL4.GL_COLOR_BUFFER_BIT| GL4.GL_DEPTH_BUFFER_BIT);
-       
-         
-        
-        for (Map.Entry<String, SceneObject> entry : sceneObjects.entrySet()) {
-           String key = entry.getKey(); 
-           SceneObject sceneObj = entry.getValue();
-           if(!sceneObj.isOptRenderEnabled()) continue;
-           shadowProg.bind(gl);
-             shadowProg.setUniform(gl, "lightMVP", lightMVP);
-           
-           
-           execObjShaderProg(gl, sceneObj, key, shadowProg);
-        }
-        
-        shadowBuf.unbind();
-      // shadowProg.unbind(gl);
-    }
+    
     
     protected void renderObjects(GL4 gl){
          for (Map.Entry<String, SceneObject> entry : sceneObjects.entrySet()) {
@@ -292,10 +288,10 @@ public class Scene implements KeyListener{
            GLSLProgramObject programObject = entry.getValue();
           programObject.bind(gl);
            
-           if(optShadowMapping){
+         /*  if(optShadowMapping){
               programObject.setUniform(gl, "lightMVP", lightMVP);
               shadowBuf.setTexture(programObject);
-           }
+           }*/
            
            execObjShaderProg(gl, sceneObj, key, programObject);
            
@@ -381,8 +377,8 @@ public class Scene implements KeyListener{
     protected Matrix getLightMVP(){
         Vector3 upVec = new Vector3(0.0f, 1.0f, 0.0f);
         Vector3 center = new Vector3(0.0f, 0.0f, 0.0f);
-        Matrix lightMVP = SceneCalculations.lookAt(this.lightPosition, center, upVec);
-        return lightMVP;
+        Matrix MVP = SceneCalculations.lookAt(this.lightPosition, center, upVec);
+        return MVP;
     }
     
     protected void lookFromLight(){
@@ -413,6 +409,8 @@ public class Scene implements KeyListener{
     protected void recalcViewMatrix(){
         
         viewMatrix = viewTrasnform.getViewMatrix();
+        //System.out.println(viewTrasnform.getPosVectorCurBasis() + " and abs is " + viewTrasnform.getPosVectorAbsBasis());
+        cameraPosVector = viewTrasnform.getPosVectorAbsBasis();
         //cameraPosVector = new Vector3();
      }
     

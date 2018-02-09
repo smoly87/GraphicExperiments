@@ -111,8 +111,8 @@ public class GraphicsExperiment  implements GLEventListener {
         config.setGl(gl);
         
         try {
-            scene = new TestScene(gl);
-             // scene = new GlassScene(gl);
+            //scene = new TestScene(gl);
+             scene = new GlassScene(gl);
          //   scene = new RayTracing2dScene(gl);
             
             // scene.init();
