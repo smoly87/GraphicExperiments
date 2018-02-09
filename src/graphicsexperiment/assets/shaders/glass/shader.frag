@@ -12,6 +12,6 @@ void main(){
 
 	//outputColor =texture(fboTexture, normalize(TexCoord0.xyz));
 	vec3 vReflected = reflect(viewDir, N);
-	
+	vReflected.x = -vReflected.x;
 	outputColor =texture(fboTexture, vReflected);
 }
