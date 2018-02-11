@@ -70,7 +70,7 @@ public class TestScene extends Scene{
 
     public TestScene(GL4 gl) throws LoadResourseException {
         super(gl);
-        this.lightPosition = new Vector3(1.0f, 0.0f, 3.0f);
+        this.lightPosition = new Vector3(0.0f, 0.0f, 3.0f);
         this.camRotVec = new Vector3();
         this.cameraPosVector = new Vector3(0.0f, 0.0f, 3.0f);
       
