@@ -235,17 +235,17 @@ public class GlassScene extends Scene{
          
          
          addSidesBoxes();*/
-        createGlass();
-       this.loadSkybox();
+        this.createGlass();
+        this.loadSkybox();
        //  initScreen();
-         this.loadHeadModel();
+        // this.loadHeadModel();
        //  this.loadQuad();
 
      }
 
      protected void createGlass() throws LoadResourseException{
         SceneObject sphere = new SceneObject(this.gl);
-        sphere.setModelFile("african_head.obj");//sphere
+        sphere.setModelFile("african_head.obj");// .sphere
         //sphere.bodyScale(0.01f);
        
         //sphere = new Sp(gl);

@@ -42,9 +42,9 @@ void main(){
 	/*vRefracted.z= -vRefracted.z;
 	vRefracted.y= -vRefracted.y;*/
 	
-	 float VdotN = max(0.0, dot(normalize(viewDir), N));
-     float fFresnel = fresnel(VdotN, 1.5);
- /*outputColor = vec4(fFresnel);
- outputColor = mix(vec4(vReflected, 1.0), vec4(vRefracted, 1.0), fFresnel);*/
-	outputColor =texture(fboTexture, vReflected);
+	 float VdotN = max(0.0, dot(normalize(-viewDir), normalize(N)));
+     float fFresnel = fresnel(VdotN, 1/1.5);
+ outputColor = vec4(fFresnel);
+ outputColor = mix(texture(fboTexture,vRefracted), texture(fboTexture, vReflected), fFresnel);
+//	outputColor =texture(fboTexture, vRefracted);
 }
