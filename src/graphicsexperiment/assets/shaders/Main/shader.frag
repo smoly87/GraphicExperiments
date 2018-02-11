@@ -44,7 +44,7 @@ vec3 calcNewNormal(){
 vec3 calcNewNormalApproach2(){
    vec3 Normal = normalize(vert.normal);
    vec3 Tangent = vert.tanget;
-   //Tangent = normalize(Tangent - dot(Tangent, Normal) * Normal);
+   Tangent = normalize(Tangent - dot(Tangent, Normal) * Normal);
    vec3 Bitangent = cross( Tangent, Normal);
 
    mat3 U = mat3(Tangent, Bitangent, Normal);
@@ -85,6 +85,6 @@ void main(){
 	float depthValue = texture(fboTexture, shadowCoordD.xy).r;
     //outputColor = vec4(vec3(depthValue), 1.0);
 	outputColor = vec4(N,1.0);
-	//outputColor =   visibility*pointColor * 0.1 +  visibility*pointColor * NdotL * 0.5 +visibility*pointColor*pow(specularI, 10) * 0.4; //;
+	outputColor =   visibility*pointColor * 0.1 +  visibility*pointColor * NdotL * 0.5 +visibility*pointColor*pow(specularI, 10) * 0.4; //;
    // outputColor =pointColor;
 }

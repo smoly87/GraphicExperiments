@@ -355,8 +355,8 @@ public class SceneObject {
             
             int r = k * 3*4; 
             int r0ind = r; 
-            int r1ind = r + 3; 
-            int r2ind = r1ind + 3; 
+            int r1ind = r + 4; 
+            int r2ind = r1ind + 4; 
             
             Matrix33 A = new Matrix33();
             //Проход по вершинам
@@ -377,6 +377,7 @@ public class SceneObject {
            
            
           Vector3 tanget =  countTanOrBitan(textureCoords, A, k, 0);
+          
            //Касательный базис одинаков во всём треугольнике, поэтому просто повторяем его в каждой вершине
            resAggregator.addVertex(tanget);
            resAggregator.addVertex(tanget);
@@ -439,7 +440,9 @@ public class SceneObject {
         if(optHasColors){
            initBuffer(mesh.getVertexesColors(), BUFFER_VETREX_COLORS); 
         } 
-        if(optBumpMapping) initBuffer( this.countTangents(), BUFFER_TANGET_COORDS);
+        if(optBumpMapping) {
+            initBuffer( this.countTangents(), BUFFER_TANGET_COORDS);
+        }
         //BUFFER_NORMALS_COORDS
         setupVBA();
     }
