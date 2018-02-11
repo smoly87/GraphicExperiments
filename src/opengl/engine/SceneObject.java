@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.media.opengl.GL;
 import static javax.media.opengl.GL.GL_TEXTURE_2D;
 import static javax.media.opengl.GL2ES3.GL_RASTERIZER_DISCARD;
 import javax.media.opengl.GL4;
@@ -183,12 +184,11 @@ public class SceneObject {
         textureId = gl.glGetUniformLocation(shaderProgram.getProgramId(), samplerName);
         if(textureId < 0) return;
         
+        gl.glActiveTexture(GL_TEXTURE0+ ind);
         gl.glUniform1i(textureId, ind);
-        gl.glActiveTexture(ind);
-        //gl.glBindTexture(GL_TEXTURE_2D, textureId);
-        tex.bind(gl);
-        tex.enable(gl);
+        //gl.glEnable(GL_TEXTURE_2D);
         
+        gl.glBindTexture(GL_TEXTURE_2D, tex.getTextureObject());
         gl.glActiveTexture(0);
 
         //tex.ge
@@ -196,7 +196,7 @@ public class SceneObject {
     
     protected void setTextureToShader(GLSLProgramObject shaderProgram){ 
         if(optLoadTexture){
-           setTextureToShader(shaderProgram, texture, "myTexture", GL4.GL_TEXTURE0);
+           setTextureToShader(shaderProgram, texture, "myTexture", 0);
         }
     }
     
@@ -206,7 +206,7 @@ public class SceneObject {
         setTextureToShader(shaderProgram);
         
         if(optBumpMapping){
-            setTextureToShader(shaderProgram, bumpMappingTexture, "bumpTexture", GL4.GL_TEXTURE0);
+            setTextureToShader(shaderProgram, bumpMappingTexture, "bumpTexture", 1);
         }
   
         render(gl, shaderProgram); 
@@ -330,6 +330,16 @@ public class SceneObject {
         return v;
     }
     
+    protected Vector3  countTanOrBitan(float[] textureCoords,  Matrix33 A, int k, int offset){
+           float u0 = textureCoords[k * 6 + offset];
+           float u1 = textureCoords[k * 6 + 2 + offset];
+           float u2 = textureCoords[k * 6 + 4 + offset];
+           Vector3 b = new Vector3(u1 - u0, u2 - u0, 0);
+           
+           Vector3 tanget = A.inverse().multiply(b);
+           return tanget;
+    }
+    
     public float[] countTangents(){
        
         float[] vertexesCoords = mesh.getVertexesCoords();
@@ -366,12 +376,7 @@ public class SceneObject {
            A.setRow(N, 2); 
            
            
-           float u0 = textureCoords[k * 6 ];
-           float u1 = textureCoords[k * 6 +1*2];
-           float u2 = textureCoords[k * 6 + 2*2 ];
-           Vector3 b = new Vector3(u1 - u0, u2 - u0, 0);
-           
-           Vector3 tanget = A.inverse().multiply(b);
+          Vector3 tanget =  countTanOrBitan(textureCoords, A, k, 0);
            //Касательный базис одинаков во всём треугольнике, поэтому просто повторяем его в каждой вершине
            resAggregator.addVertex(tanget);
            resAggregator.addVertex(tanget);
