@@ -39,10 +39,10 @@ void main(){
     vert.position = gl_Position;
 	/*mat4 normalV = inverse(transpose(viewMatrix*modelMatrix));
 	vert.normal = (normalV * vec4(vertexNormal, 1.0)).xyz;*/
-	vert.normal = (normalMatrix* vec4(vertexNormal, 1.0)).xyz;
+	vert.normal = (transpose(inverse(modelMatrix))* vec4(vertexNormal, 0.0)).xyz;
 	vert.tanget = (viewMatrix * vec4(tanget, 0.0)).xyz;
 	//view_dir = (viewMatrix * vec4(0,0,1, 0)).xyz; 
-	light_position = (viewMatrix * vec4(light.position, 0.0)).xyz;
+	light_position = light.position;
 	shadowCoord = projectionMatrix*lightMVP *modelMatrix* position;
 
 }

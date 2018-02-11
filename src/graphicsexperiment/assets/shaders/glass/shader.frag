@@ -16,19 +16,35 @@ vec3 computeRefractedVector(vec3 incidence, vec3 normal, float eta)
  else
   return eta * incidence - normal * (etaIdotN + sqrt(k));
 }
+
+float fresnel(float VdotN, float eta)
+{
+ float sqr_eta = eta * eta;
+ float etaCos = eta * VdotN;
+ float sqr_etaCos = etaCos*etaCos;
+ float one_minSqrEta = 1.0 - sqr_eta;
+ float value = etaCos - sqrt(one_minSqrEta + sqr_etaCos);
+ value *= value / one_minSqrEta;
+ return min(1.0, value * value);
+}
+
+
 void main(){
     
 
 	vec3 TexCoord1 = TexCoord0;
 	//TexCoord1.y = -TexCoord1.y;
-	//outputColor =texture(fboTexture, normalize(TexCoord1.xyz));
+	outputColor =texture(fboTexture, normalize(TexCoord1.xyz));
 	vec3 vReflected = reflect(viewDir, normalize(N));
 	//vReflected.y = -vReflected.y;
-	outputColor =texture(fboTexture, vReflected);
+	//outputColor =texture(fboTexture, vReflected);
 	vec3 vRefracted = computeRefractedVector(viewDir, normalize(N), 1.0/1.5);
 	/*vRefracted.z= -vRefracted.z;
 	vRefracted.y= -vRefracted.y;*/
 	
-	
-	outputColor =texture(fboTexture, vRefracted);
+	 float VdotN = max(0.0, dot(normalize(viewDir), N));
+     float fFresnel = fresnel(VdotN, 1.5);
+ /*outputColor = vec4(fFresnel);
+ outputColor = mix(vec4(vReflected, 1.0), vec4(vRefracted, 1.0), fFresnel);*/
+	outputColor =texture(fboTexture, vReflected);
 }

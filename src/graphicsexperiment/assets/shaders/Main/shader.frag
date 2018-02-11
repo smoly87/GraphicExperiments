@@ -80,7 +80,7 @@ void main(){
 	
 	
     if (  (UVCoords.z - 0.00001) < Depth){
-          visibility = 0.1;
+        //  visibility = 0.1;
     }
 	/*float depthValue = texture(shadowTexture, shadowCoordD.xy).r;
     outputColor = vec4(vec3(depthValue), 1.0);*/

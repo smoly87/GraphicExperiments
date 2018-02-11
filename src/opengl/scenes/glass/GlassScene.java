@@ -141,12 +141,12 @@ public class GlassScene extends Scene{
            sceneObjects.put("head", africanHead);
         
     }
-         protected SceneObject  loadBox(String boxName, String textureName, Vector3 pos){
+         protected SceneObject  loadBox(String boxName, String textureName, Vector3 pos) throws LoadResourseException{
 
            SceneObject body = new SceneObject(this.gl);
            body.setTextureFile(textureName);
            body.setModelFile("quad.obj");
-           
+           //body.addShaderProgram("normalVisualiser", new ShaderProgOptions(true));
            body.init();
            body.bodyTranlate(pos);
            sceneObjects.put(boxName, body);
@@ -203,7 +203,7 @@ public class GlassScene extends Scene{
      }
      
      
-     protected SceneObject addBox(Vector3 pos, String texture){
+     protected SceneObject addBox(Vector3 pos, String texture) throws LoadResourseException{
          SceneObject box = loadBox("box_" + boxNum, texture , pos );
          box.bodyScale(4.0f);
          boxNum++;
@@ -211,7 +211,7 @@ public class GlassScene extends Scene{
          return box;
      }
      
-     protected void addSidesBoxes(){
+     protected void addSidesBoxes() throws LoadResourseException{
          addBox(new Vector3(0.0f, 0.5f,-2.0f),"uv_checker large_flip.jpg");
          addBox(new Vector3(0.0f, 0.5f,2.0f),"uv_checker large_flip.jpg").bodyRotateY((float)Math.PI);
          
@@ -225,7 +225,7 @@ public class GlassScene extends Scene{
          glassObjPos = new Vector3(0.0f, 0.2f, 0.0f);
          super.init();
          //loadCube();
-         SceneObject floor = loadBox("floor", "floor_diffuse.tga", new Vector3(0.0f, -0.5f,0.0f));
+        /*SceneObject floor = loadBox("floor", "floor_diffuse.tga", new Vector3(0.0f, -0.5f,0.0f));
          floor.bodyRotateX(-(float)Math.PI/2.0f);
          floor.bodyScale(4.0f);
          
@@ -234,9 +234,9 @@ public class GlassScene extends Scene{
          ceiling.bodyScale(4.0f);
          
          
-         addSidesBoxes();
+         addSidesBoxes();*/
         createGlass();
-      // this.loadSkybox();
+       this.loadSkybox();
        //  initScreen();
          this.loadHeadModel();
        //  this.loadQuad();
@@ -245,7 +245,9 @@ public class GlassScene extends Scene{
 
      protected void createGlass() throws LoadResourseException{
         SceneObject sphere = new SceneObject(this.gl);
-        sphere.setModelFile("sphere.obj");//african_head
+        sphere.setModelFile("african_head.obj");//sphere
+        //sphere.bodyScale(0.01f);
+       
         //sphere = new Sp(gl);
         sphere.setTextureFile("uv_checker large.jpg");
         //sphere.addShaderProgram("normalVisualiser", new ShaderProgOptions(true));
@@ -254,7 +256,7 @@ public class GlassScene extends Scene{
         sphere.setShaderProgName("glass");
         sphere.init();
         //sphere.bodyRotateY((float)Math.PI);
-        sphere.bodyScale(0.01f);
+        sphere.bodyScale(0.2f);
         sphere.bodyTranlate(glassObjPos);
         sceneObjects.put("glass", sphere);
      }

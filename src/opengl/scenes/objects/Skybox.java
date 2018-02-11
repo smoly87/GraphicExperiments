@@ -137,9 +137,9 @@ private static final String[] suffixes = { "px", "nx", "py", "ny", "pz", "nz" };
          int texLoc = gl.glGetUniformLocation(shaderProgram.getProgramId(), "myTexture");
 
         gl.glUniform1i(texLoc, GL4.GL_TEXTURE0);
-        gl.glEnable(GL_TEXTURE_2D);
+        gl.glEnable(GL_TEXTURE_CUBE_MAP);
         gl.glActiveTexture(GL.GL_TEXTURE0);
-        gl.glBindTexture(GL_TEXTURE_2D, textureId);
+        gl.glBindTexture(GL_TEXTURE_CUBE_MAP, textureId);
         gl.glActiveTexture(0);
     }
 
