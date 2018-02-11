@@ -31,7 +31,8 @@ out Vertex vert;
 out vec3 light_position;
 out vec3 view_dir;
 out vec4 shadowCoord;
-
+out vec3 viewDir;
+out vec3 lightDir;
 
 void main(){
     vert.textureUV = vertexUV;
@@ -40,7 +41,9 @@ void main(){
 	/*mat4 normalV = inverse(transpose(viewMatrix*modelMatrix));
 	vert.normal = (normalV * vec4(vertexNormal, 1.0)).xyz;*/
 	vert.normal = (transpose(inverse(modelMatrix))* vec4(vertexNormal, 0.0)).xyz;
-	vert.tanget = (viewMatrix * vec4(tanget, 0.0)).xyz;
+	vert.tanget = (transpose(inverse(modelMatrix)) * vec4(tanget, 0.0)).xyz;
+	viewDir = ( modelMatrix * position).xyz -cameraPosW;
+	lightDir = light.position-( modelMatrix * position).xyz;
 	//view_dir = (viewMatrix * vec4(0,0,1, 0)).xyz; 
 	light_position = light.position;
 	shadowCoord = projectionMatrix*lightMVP *modelMatrix* position;

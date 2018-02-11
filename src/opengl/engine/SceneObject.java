@@ -182,15 +182,16 @@ public class SceneObject {
     protected void setTextureToShader( GLSLProgramObject shaderProgram, Texture tex, String samplerName, int ind){
         textureId = gl.glGetUniformLocation(shaderProgram.getProgramId(), samplerName);
         if(textureId < 0) return;
+        
         gl.glUniform1i(textureId, ind);
         gl.glActiveTexture(ind);
-        gl.glBindTexture(GL_TEXTURE_2D, textureId);
+        //gl.glBindTexture(GL_TEXTURE_2D, textureId);
         tex.bind(gl);
         tex.enable(gl);
         
         gl.glActiveTexture(0);
 
-        
+        //tex.ge
     }
     
     protected void setTextureToShader(GLSLProgramObject shaderProgram){ 
@@ -205,7 +206,7 @@ public class SceneObject {
         setTextureToShader(shaderProgram);
         
         if(optBumpMapping){
-            setTextureToShader(shaderProgram, bumpMappingTexture, "bumpTexture", GL4.GL_TEXTURE1);
+            setTextureToShader(shaderProgram, bumpMappingTexture, "bumpTexture", GL4.GL_TEXTURE0);
         }
   
         render(gl, shaderProgram); 
@@ -318,19 +319,31 @@ public class SceneObject {
             
         }           
     }
+    
+    protected Vector extractCoords(float[] coords, int elemSize, int elemNum){
+        Vector v = new Vector(elemSize);
+        int S = elemNum * elemSize;
+        int k = 0;
+        for(int i = S; i < S + elemSize; i++, k++){
+            v.values[k] = coords[i];
+        }
+        return v;
+    }
+    
     public float[] countTangents(){
        
         float[] vertexesCoords = mesh.getVertexesCoords();
         float[] textureCoords = mesh.getTextureCoords();
+        float[] normalCoords = mesh.getNormalsCoords();
         
-         int triangleCount = vertexesCoords.length / 9;
+         int triangleCount = vertexesCoords.length / 12;
         //float[] res = new float[vertexesCoords.length];
         
-        VertexAggregator resAggregator = new VertexAggregator( vertexesCoords.length / 3, 3);
+        VertexAggregator resAggregator = new VertexAggregator( vertexesCoords.length / 4, 3);
         
         for(int k = 0; k < triangleCount ; k++){
             
-            int r = k * 9; 
+            int r = k * 3*4; 
             int r0ind = r; 
             int r1ind = r + 3; 
             int r2ind = r1ind + 3; 
@@ -341,16 +354,21 @@ public class SceneObject {
                 A.values[0][j] = vertexesCoords[r1ind + j] - vertexesCoords[r0ind + j];
                 A.values[1][j] = vertexesCoords[r2ind + j] - vertexesCoords[r0ind + j];
             }
-            
+             /*Vector3 tanget = new Vector3();
+            for(int j = 0; j < 3; j++){
+                tanget.values[j] = vertexesCoords[r0ind + j] - vertexesCoords[r1ind + j];
+            }*/
             //Считаем нормаль
-           Vector3 v1 = A.getRow(0).toVector3();
-           Vector3 v2 = A.getRow(1).toVector3();
-           A.setRow(v2.cross(v1).toVector4().normalise(), 2); 
+          /* Vector3 v1 = A.getRow(0).toVector3();
+           Vector3 v2 = A.getRow(1).toVector3();*/
+         
+           Vector3 N = extractCoords(normalCoords, 3, k*3).toVector3();
+           A.setRow(N, 2); 
            
            
-           float u0 = textureCoords[k * 2 + 0 * 2 + 1];
-           float u1 = textureCoords[k * 2 + 1 * 2 + 1];
-           float u2 = textureCoords[k * 2 + 2 * 2 + 1];
+           float u0 = textureCoords[k * 6 ];
+           float u1 = textureCoords[k * 6 +1*2];
+           float u2 = textureCoords[k * 6 + 2*2 ];
            Vector3 b = new Vector3(u1 - u0, u2 - u0, 0);
            
            Vector3 tanget = A.inverse().multiply(b);

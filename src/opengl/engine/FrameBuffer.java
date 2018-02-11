@@ -325,7 +325,7 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
      public void setTexture(GLSLProgramObject prog)  {
         // GLSLProgramObject shadowProg = shadersExtPrograms.get("ShadowMap");
         int texLoc = gl.glGetUniformLocation(prog.getProgramId(), "fboTexture");
-        if(texLoc == -1) System.err.println("Texture for fbo was not found in shader!");;
+        //if(texLoc == -1) System.err.println("Texture for fbo was not found in shader!");;
         gl.glUniform1i(texLoc, GL4.GL_TEXTURE0);
         gl.glEnable(GL_TEXTURE_2D);
         gl.glActiveTexture(GL.GL_TEXTURE0);

@@ -25,7 +25,8 @@ uniform sampler2D bumpTexture;
 uniform sampler2D shadowTexture;
 uniform sampler2D fboTexture;
 
-uniform vec3 viewDir;
+in vec3 viewDir;
+in vec3 lightDir;
 
 vec3 calcNewNormal(){
     vec3 Normal = normalize(vert.normal);
@@ -43,26 +44,25 @@ vec3 calcNewNormal(){
 
 vec3 calcNewNormalApproach2(){
    vec3 Normal = normalize(vert.normal);
-   vec3 Tangent = normalize(vert.tanget);
-   vec3 Bitangent = cross(Tangent, Normal);
-   
+   vec3 Tangent = vert.tanget;
+   Tangent = normalize(Tangent - dot(Tangent, Normal) * Normal);
+   vec3 Bitangent = cross( Tangent, Normal);
+
    mat3 U = mat3(Tangent, Bitangent, Normal);
-   mat3 UI = inverse(U);
+    
+   vec3 BumpMapNormal = texture(bumpTexture, vert.textureUV).rgb;
+   BumpMapNormal = normalize(2.0 * BumpMapNormal - vec3(1.0, 1.0, 1.0));
+  //BumpMapNormal = vec3(BumpMapNormal.z, BumpMapNormal.y, BumpMapNormal.x);
    
-   vec3 deltaNS = texture(bumpTexture, vert.textureUV).xyz;
-   
-   vec3 NS = UI*Normal;
-   vec3 NcS = (NS - deltaNS);
-   
-   vec3 NewNormal = U * NcS;
-   return NewNormal;
+   vec3 NewNormal = U * BumpMapNormal;
+   return normalize(NewNormal);
 }
 
 void main(){
     vec4 pointColor = texture(myTexture, vert.textureUV).rgba;
 
-	vec3 N = normalize(vert.normal);//calcNewNormalApproach2();//// calcNewNormal();//
-	vec3 L = normalize(light_position);
+	vec3 N = normalize(vert.normal);//calcNewNormalApproach2();////// calcNewNormal();//;
+	vec3 L = normalize(lightDir);
 	vec3 V = vec3(0, 0 ,1);
 	
     float NdotL = max(dot(N, L), 0.0);

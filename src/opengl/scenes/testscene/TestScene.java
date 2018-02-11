@@ -20,6 +20,7 @@ import math.sceneCalculations.ViewTransformations;
 import opengl.engine.GLSLProgramObject;
 import opengl.engine.RenderPass;
 import opengl.engine.SceneObject;
+import opengl.engine.ShaderProgOptions;
 import opengl.scenes.objects.CompShaderFiction;
 import opengl.scenes.objects.Cube;
 import opengl.scenes.objects.Cylinder;
@@ -69,7 +70,7 @@ public class TestScene extends Scene{
 
     public TestScene(GL4 gl) throws LoadResourseException {
         super(gl);
-        this.lightPosition = new Vector3(0.0f, 0.0f, 3.0f);
+        this.lightPosition = new Vector3(1.0f, 0.0f, 3.0f);
         this.camRotVec = new Vector3();
         this.cameraPosVector = new Vector3(0.0f, 0.0f, 3.0f);
       
@@ -103,14 +104,14 @@ public class TestScene extends Scene{
      
     
      
-     protected void  loadHeadModel(){
+     protected void  loadHeadModel() throws LoadResourseException{
            SceneObject africanHead;
            africanHead = new SceneObject(this.gl);
-           africanHead.setOptBumpMapping(false);
+           africanHead.setOptBumpMapping(true);
            africanHead.setBumpMappingTextureFile("african_head_nm_tangent.tga");
            africanHead.setTextureFile("african_head_diffuse.tga");
            africanHead.setModelFile("african_head.obj");
-           
+           //africanHead.addShaderProgram("normalVisualiser", new ShaderProgOptions(true));
            /*
            try{
                africanHead.addShaderProgram(africanHead.getShadersFilePath() + "normalVisualiser/", true, "NormVisualiser");

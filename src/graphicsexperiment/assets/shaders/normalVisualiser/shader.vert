@@ -3,6 +3,7 @@
 layout(location = 0) in vec4 position;
 layout (location = 1) in vec2 vertexUV;
 layout (location = 2) in vec3 vertexNormal;
+layout (location = 4) in vec3 tanget;
 
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
@@ -22,7 +23,7 @@ struct Vertex{
    vec2 textureUV;
    vec4 normal;
    vec3 normalEnd;
-   vec3 tanget;
+   vec4 tanget;
 };
 
 out Vertex vertex;
@@ -32,4 +33,5 @@ void main(){
     vertex.position = position;
 	vec4 newNorm =  transpose(inverse(viewMatrix*modelMatrix)) * vec4(vertexNormal, 0.0);	
 	vertex.normal = newNorm;
+	vertex.tanget = transpose(inverse(viewMatrix*modelMatrix))* vec4(tanget, 0.0);
 }

@@ -188,7 +188,7 @@ public class Scene implements KeyListener{
     protected void prepareGlSettings( GL4 gl){
          gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         
-        if(optWireFrame) gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_LINE );
+         gl.glPolygonMode( gl.GL_FRONT_AND_BACK, optWireFrame ?  gl.GL_LINE : gl.GL_FILL );
         
          if(optDeepTest){
             gl.glEnable(GL4.GL_CULL_FACE);
