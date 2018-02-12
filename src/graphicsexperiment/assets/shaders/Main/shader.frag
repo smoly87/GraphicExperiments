@@ -45,7 +45,7 @@ vec3 calcNewNormalApproach2(){
    vec3 Normal = normalize(vert.normal);
    vec3 Tangent = vert.tanget;
    Tangent = normalize(Tangent - dot(Tangent, Normal) * Normal);
-   vec3 Bitangent = cross( Tangent, Normal);
+   vec3 Bitangent = cross( Normal, Tangent );
 
    mat3 U = mat3(Tangent, Bitangent, Normal);
     
@@ -80,7 +80,7 @@ void main(){
 	
 	
     if (  UVCoords.z -  0.001 > Depth ){
-          visibility = 0.1;
+          visibility = 0.5;
     }
 	
     //outputColor = vec4(vec3(depthValue), 1.0);
