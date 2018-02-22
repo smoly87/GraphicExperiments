@@ -21,5 +21,5 @@ void main(){
     //float v = texture(fboTexture, vert.textureUV).r/2.02;
 	float v = LinearizeDepth( vert.textureUV);
 	pointColor =vec4(v,v,v,1.0 ) ;//
-	//pointColor = texture(fboTexture, vert.textureUV);//v
+	pointColor = texture(fboTexture, vert.textureUV);//v
 }

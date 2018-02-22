@@ -46,9 +46,8 @@ public class RenderPassMain extends RenderPassStandart{
         super(scene);
     }
 
-    @Override
-    protected void renderObject(GL4 gl, SceneObject sceneObj, String objName) {
-        if (optColorMapping && objName.equals("glass")){
+    protected void renderGlassObj(GL4 gl, SceneObject sceneObj, String objName){
+       
             FrameBuffer colorBuf = scene.getFrameBuffersStorage().get("ColorBuffer");
             GLSLProgramObject programObject = (GLSLProgramObject)sceneObj.getShadersPrograms().values().toArray()[0];
             
@@ -62,9 +61,32 @@ public class RenderPassMain extends RenderPassStandart{
             execObjShaderProg(gl, sceneObj, "Main", programObject);
             
             programObject.unbind(gl);
-            return;
-        } else{
-            super.renderObject(gl, sceneObj, objName); 
+    }
+    
+    protected void renderScreen(GL4 gl, SceneObject sceneObj, String objName){
+        FrameBuffer backFaceBuf = scene.getFrameBuffersStorage().get("BackFaceBuffer");
+        GLSLProgramObject programObject = (GLSLProgramObject) sceneObj.getShadersPrograms().values().toArray()[0];
+
+        programObject.bind(gl);
+
+        backFaceBuf.setTexture(programObject);
+        execObjShaderProg(gl, sceneObj, "Main", programObject);
+
+        programObject.unbind(gl);
+    }
+    
+    @Override
+    protected void renderObject(GL4 gl, SceneObject sceneObj, String objName) {
+        
+        switch(objName){
+            case "glass":
+                if (optColorMapping ) renderGlassObj(gl, sceneObj, objName);
+                break;
+            case "screen":
+                renderScreen(gl, sceneObj, objName);
+                break;
+            default:
+                super.renderObject(gl, sceneObj, objName); 
         }
         
         

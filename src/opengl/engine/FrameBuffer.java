@@ -50,8 +50,27 @@ public class FrameBuffer {
     protected boolean useColorRenderBuffer;
     
     protected int textureId; 
-    protected int clearFlag = gl.GL_DEPTH_BUFFER_BIT|GL4.GL_COLOR_BUFFER_BIT;
+    protected int clearFlag = GL4.GL_DEPTH_BUFFER_BIT|GL4.GL_COLOR_BUFFER_BIT;
 
+    protected String textureUnitName = "fboTexture";
+    protected int textureUnitInd = 2;
+
+    public String getTextureUnitName() {
+        return textureUnitName;
+    }
+
+    public void setTextureUnitName(String textureUnitName) {
+        this.textureUnitName = textureUnitName;
+    }
+
+    public int getTextureUnitInd() {
+        return textureUnitInd;
+    }
+
+    public void setTextureUnitInd(int textureUnitInd) {
+        this.textureUnitInd = textureUnitInd;
+    }
+    
     public int getClearFlag() {
         return clearFlag;
     }
@@ -327,10 +346,10 @@ gl.glTexParameteri(GL_TEXTURE_2D, GL2.GL_DEPTH_TEXTURE_MODE, GL.GL_LUMINANCE );*
         int texLoc = gl.glGetUniformLocation(prog.getProgramId(), "fboTexture");
         //if(texLoc == -1) System.err.println("Texture for fbo was not found in shader!");;
       
-        gl.glUniform1i(texLoc, 2);
+        gl.glUniform1i(texLoc, textureUnitInd);
         //gl.glEnable(GL_TEXTURE_2D);
         
-        gl.glActiveTexture(GL.GL_TEXTURE2);
+        gl.glActiveTexture(GL.GL_TEXTURE0 + textureUnitInd);
         gl.glBindTexture(GL_TEXTURE_2D, textureId);
        
         

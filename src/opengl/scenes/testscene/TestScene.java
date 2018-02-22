@@ -142,17 +142,7 @@ public class TestScene extends Scene{
         SceneObject sphere = createSphere(new Vector3(0.0f, 0.0f, 2.0f), 0.1f, "uv_checker large.png");
          sceneObjects.put("sphere", sphere);
      }
-     protected void initScreen(){
-           SceneObject screenObj = new SceneObject(this.gl);
-           screenObj = new Quad(this.gl);
-           screenObj.setTextureFile("uv_checker large.png");
-           screenObj.setShaderProgName("ColorMap");
-           screenObj.init();
-           screenObj.bodyTranlate(new Vector3(1.0f, 0.0f, -2.0f));
-           screenObj.bodyScale(2.0f);
-           sceneObjects.put("screen", screenObj);
-     }
-     
+
    
      
      public void init() throws LoadResourseException{

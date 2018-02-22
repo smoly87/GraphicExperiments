@@ -86,5 +86,5 @@ void main(){
     //outputColor = vec4(vec3(depthValue), 1.0);
 	outputColor = vec4(N,1.0);
 	outputColor =   visibility*pointColor * 0.1 +  visibility*pointColor * NdotL * 0.5 +visibility*pointColor*pow(specularI, 10) * 0.4; //;
-   // outputColor =pointColor;
+   //outputColor =pointColor;
 }

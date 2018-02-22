@@ -39,7 +39,7 @@ import opengl.scenes.objects.VectorField;
 public class GlassScene extends Scene{
 
     protected ColorMapPass colorMapPass;
-    
+    protected BackFacePass backFacePass;
     
     protected boolean optColorMap;
    
@@ -58,13 +58,21 @@ public class GlassScene extends Scene{
     
     @Override
     public void performRenderPasses() {
-       if(optColorMapping)this.performColorBuffRenderPass();
+       this.sceneObjects.get("screen").setOptRenderEnabled(false);
+       this.performBackfaceBuffRenderPass();
+       if(optColorMapping)this.performEnviromentBuffRenderPass();
        
+       this.sceneObjects.get("screen").setOptRenderEnabled(true);
        this.performStandartRenderPass();
     }
-
+    protected void performBackfaceBuffRenderPass(){
+        backFacePass.bindFbo();
+        this.setStandartRenderVariables(backFacePass);
+        backFacePass.render();
+        backFacePass.unBindFbo();
+    }
    
-    protected void performColorBuffRenderPass(){
+    protected void performEnviromentBuffRenderPass(){
         
         SceneObject glass = sceneObjects.get("glass");
         boolean renderFlag = glass.isOptRenderEnabled();
@@ -106,6 +114,7 @@ public class GlassScene extends Scene{
         optShadowMapping = false;
         
         colorMapPass = new ColorMapPass(this);
+        backFacePass = new BackFacePass(this);
 
         renderPassStandart = new RenderPassMain(this);
         RenderPassMain mainRender = (RenderPassMain)renderPassStandart;
@@ -191,17 +200,7 @@ public class GlassScene extends Scene{
         
      
     
-     protected void initScreen(){
-           SceneObject screenObj = new SceneObject(this.gl);
-           screenObj = new Quad(this.gl);
-           screenObj.setTextureFile("uv_checker large.png");
-           screenObj.setShaderProgName("ColorMap");
-           screenObj.init();
-           screenObj.bodyTranlate(new Vector3(1.0f, 0.0f, -2.0f));
-           screenObj.bodyScale(2.0f);
-           sceneObjects.put("screen", screenObj);
-     }
-     
+  
      
      protected SceneObject addBox(Vector3 pos, String texture) throws LoadResourseException{
          SceneObject box = loadBox("box_" + boxNum, texture , pos );
@@ -237,6 +236,7 @@ public class GlassScene extends Scene{
          addSidesBoxes();*/
         this.createGlass();
         this.loadSkybox();
+        this.initScreen();
        //  initScreen();
         // this.loadHeadModel();
        //  this.loadQuad();

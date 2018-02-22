@@ -220,6 +220,8 @@ public class SceneObject {
 
          programObject.setUniform(gl, "viewMatrix", viewMatrix);
          programObject.setUniform(gl, "projectionMatrix", projectionMatrix);
+         programObject.setUniform(gl, "invProjectionMatrix", projectionMatrix.inverse());
+         
          Matrix modelMatrix = getModelMatrix();
          Matrix viewModel = viewMatrix.multiply(modelMatrix);
          Matrix MVP = projectionMatrix.multiply(viewModel);
@@ -428,12 +430,16 @@ public class SceneObject {
         initBuffer(coords,  bufferType,  glBufferType, buffers);
     }
     
+    protected void initVertexes(){
+        initBuffer(mesh.getVertexesCoords(), BUFFER_VERTEX);
+    }
+    
     protected void initBuffers(){
        
         gl.glBindVertexArray(vertexArrayObject.get(0));
         gl.glGenBuffers(buffersCount, buffers);
         
-        initBuffer(mesh.getVertexesCoords(), BUFFER_VERTEX);
+        initVertexes();
         if(optVertexIndexes) initBuffer(mesh.getVertexesIndexes(), BUFFER_VERTEX_INDEXES, GL4.GL_ARRAY_BUFFER, buffers);
         if(optVeretexTextures) initBuffer( mesh.getTextureCoords(), BUFFER_TEXTURE_COORDS );
         if(optVertexNormals) initBuffer(mesh.getNormalsCoords(), BUFFER_NORMALS_COORDS);
@@ -443,10 +449,17 @@ public class SceneObject {
         if(optBumpMapping) {
             initBuffer( this.countTangents(), BUFFER_TANGET_COORDS);
         }
+        initCustomBuffers();
         //BUFFER_NORMALS_COORDS
         setupVBA();
     }
+    protected void initCustomBuffers(){
+        
+    }
     
+    protected void setupVBaCustomBuffers(){
+        
+    }
     protected int getBufferId(int part){
         if(buffersAssociations.containsKey(part)){
             return buffersAssociations.get(part);
@@ -492,6 +505,7 @@ public class SceneObject {
         if(optVertexIndexes){
            gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, buffers.get(BUFFER_VERTEX_INDEXES));
         }
+        setupVBaCustomBuffers();
         
         gl.glBindVertexArray(0);        
 

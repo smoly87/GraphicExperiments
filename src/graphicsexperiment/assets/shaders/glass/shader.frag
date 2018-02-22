@@ -27,7 +27,36 @@ float fresnel(float VdotN, float eta)
  value *= value / one_minSqrEta;
  return min(1.0, value * value);
 }
+// функция, которая по заданной точке, матрице проекции,
+// обратной матрице и текстуре глубины
+// восстанавливает прочитанное из этой значение по спроецированным
+// на эту текстуру координатам заданной точки
+vec3 reproject(vec3 position, mat4 projection, mat4 inverseProjection,
+               sampler2D depthmap)
+{
+  // проецируем точку
+  vec4 vProjected = projection * vec4(position, 1.0);
+  vec2 texCoord = vProjected.xy / vProjected.w;
+  // читаем значение из текстуры
+  float fSampledDepth = 2.0 * texture(depthmap, vec2(0.5) + 0.5 * texCoord).x - 1.0;
+  // восстанавливаем положение в мировых координатах
+  vec4 vWorldSpaceVertex = inverseProjection * vec4(texCoord, fSampledDepth, 1.0);
+  return vWorldSpaceVertex.xyz / vWorldSpaceVertex.w;
+}
 
+// функция, которая находит пересечение луча, 
+// выпущенного из заданной точки в заданном направлении
+vec3 estimateIntersection(vec3 startPoint, vec3 ray, mat4 projection, 
+                          mat4 inverseProjection, sampler2D depthmap)
+{
+  // первое приближение
+  vec3 p = reproject(startPoint + ray, projection, inverseProjection, depthmap);
+  // итерационное вычисление пересечения
+  for (int i = 0; i < 5; ++i)
+      p = reproject(startPoint + ray * distance(startPoint, p), projection, 
+                    inverseProjection, depthmap);
+  return p;
+}
 
 void main(){
     
@@ -39,6 +68,7 @@ void main(){
 	//vReflected.y = -vReflected.y;
 	//outputColor =texture(fboTexture, vReflected);
 	vec3 vRefracted = computeRefractedVector(viewDir, normalize(N), 1.0/1.5);
+	invProjectionMatrix
 	/*vRefracted.z= -vRefracted.z;
 	vRefracted.y= -vRefracted.y;*/
 	

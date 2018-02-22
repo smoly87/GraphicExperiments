@@ -40,6 +40,7 @@ import math.transformMatricies4.MatrixRotationY;
 import math.transformMatricies4.MatrixRotationZ;
 import math.transformMatricies4.MatrixTranslation;
 import math.transformMatricies4.MatrixUnit;
+import opengl.scenes.objects.Quad;
 
 /**
  *
@@ -122,7 +123,17 @@ public class Scene implements KeyListener{
         renderPassStandart = new RenderPassStandart(this);
         
     }
-
+   protected void initScreen(){
+           SceneObject screenObj = new SceneObject(this.gl);
+           screenObj = new Quad(this.gl);
+           screenObj.setTextureFile("uv_checker large.png");
+           screenObj.setShaderProgName("ColorMap");
+           screenObj.init();
+           screenObj.bodyTranlate(new Vector3(1.0f, 0.0f, -2.0f));
+           screenObj.bodyScale(2.0f);
+           sceneObjects.put("screen", screenObj);
+     }
+     
 
     /**
      * @return the fieldOfView
