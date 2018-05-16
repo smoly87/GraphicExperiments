@@ -9,6 +9,7 @@ import engine.Vector;
 import opengl.scenes.testscene.*;
 import engine.exception.LoadResourseException;
 import engine.mesh.Mesh;
+import engine.utils.common.MathUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -28,6 +29,7 @@ import opengl.scenes.objects.CompShaderFiction;
 import opengl.scenes.objects.Cube;
 import opengl.scenes.objects.Cylinder;
 import opengl.scenes.objects.GraphAnimated2d;
+import opengl.scenes.objects.GraphAnimated3d;
 import opengl.scenes.objects.Grid;
 import opengl.scenes.objects.Polygon2d;
 import opengl.scenes.objects.Quad;
@@ -37,6 +39,8 @@ import opengl.scenes.objects.VectorField;
 import raytrace2d.Ray;
 import raytrace2d.RaysSource;
 import raytrace2d.TestRayTraceScene;
+import tasks.membrane.ReferenceWave2dSolution;
+import tasks.membrane.waveEquation2d;
 import tasks.waveequation.waveEquation1d;
 /**
  *
@@ -133,7 +137,8 @@ public class RayTracing2dScene extends Scene{
         /* createLense();
          
          initVecField();*/
-        initGraph2d();
+        //initGraph2d();
+        initGraph3d();
        //this.loadHeadModel();  
          
      }
@@ -156,6 +161,31 @@ public class RayTracing2dScene extends Scene{
          graph2d.init();//??????
          sceneObjects.put("Graph2d", graph2d);
      }
-     
-    
+         protected double[][] getRefereneSolution2d(engine.Mesh mesh, int timeSteps){
+        ReferenceWave2dSolution refSol = new ReferenceWave2dSolution();
+        
+        double[] TRange = MathUtils.linSpace(0, 1, timeSteps+1);
+        double[][] XRef = refSol.getReferenceSolution(TRange, mesh.getPoints(), 1);
+        
+        return XRef;
+    }
+      protected void initGraph3d(){
+               int T = 20;
+         waveEquation2d wv = new waveEquation2d(10, T);
+         double[][]sol = wv.solveAnalytics();
+       //  double[][]sol = wv.solve();
+          double[][] XRef = getRefereneSolution2d(wv.getMesh(), T);
+         //GraphAnimated3d graph3d = new GraphAnimated3d(gl, wv.getMesh(),  XRef);
+         
+         /*for(int i = 0; i < sol.length; i++){
+             for(int j = 0; j < sol[0].length; j++){
+                 sol[i][j] = XRef[i][j]-sol[i][j];
+             }
+         }*/
+         
+         GraphAnimated3d graph3d = new GraphAnimated3d(gl, wv.getMesh(),  sol);
+         graph3d.init();//??????
+        // graph3d.bodyRotateX(-(float)Math.PI/2);
+         sceneObjects.put("Graph3d", graph3d);
+     }
 }

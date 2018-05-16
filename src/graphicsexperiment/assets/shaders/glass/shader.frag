@@ -68,7 +68,7 @@ void main(){
 	//vReflected.y = -vReflected.y;
 	//outputColor =texture(fboTexture, vReflected);
 	vec3 vRefracted = computeRefractedVector(viewDir, normalize(N), 1.0/1.5);
-	invProjectionMatrix
+	//invProjectionMatrix
 	/*vRefracted.z= -vRefracted.z;
 	vRefracted.y= -vRefracted.y;*/
 	
