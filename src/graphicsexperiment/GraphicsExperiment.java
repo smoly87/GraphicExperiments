@@ -64,7 +64,7 @@ public class GraphicsExperiment  implements GLEventListener {
     public static void main(String[] args) {
         GraphicsExperiment tut01 = new GraphicsExperiment();
 
-        Frame frame = new Frame("Tutorial 01");
+        Frame frame = new Frame("Graphic Experiments");
 
         frame.add(tut01.getCanvas());
 
@@ -111,9 +111,9 @@ public class GraphicsExperiment  implements GLEventListener {
         config.setGl(gl);
         
         try {
-         //  scene = new TestScene(gl);
-             scene = new GlassScene(gl);
-            //scene = new RayTracing2dScene(gl);
+            //scene = new TestScene(gl);
+            //scene = new GlassScene(gl);
+            scene = new RayTracing2dScene(gl);
             
             // scene.init();
         } catch (LoadResourseException ex) {

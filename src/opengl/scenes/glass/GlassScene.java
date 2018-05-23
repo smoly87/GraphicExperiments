@@ -58,11 +58,11 @@ public class GlassScene extends Scene{
     
     @Override
     public void performRenderPasses() {
-       this.sceneObjects.get("screen").setOptRenderEnabled(false);
+       //this.sceneObjects.get("screen").setOptRenderEnabled(false);
        this.performBackfaceBuffRenderPass();
        if(optColorMapping)this.performEnviromentBuffRenderPass();
        
-       this.sceneObjects.get("screen").setOptRenderEnabled(true);
+       //this.sceneObjects.get("screen").setOptRenderEnabled(true);
        this.performStandartRenderPass();
     }
     protected void performBackfaceBuffRenderPass(){
@@ -192,7 +192,7 @@ public class GlassScene extends Scene{
            plane = new Quad(this.gl);
            plane.setTextureFile("african_head_diffuse.tga");
            plane.init();
-               plane.bodyTranlate(new Vector3(0.0f, 0.0f, -2.0f));
+           plane.bodyTranlate(new Vector3(0.0f, 0.0f, -2.0f));
            plane.bodyScale(2.0f);
            sceneObjects.put("cube", plane);
         
@@ -236,7 +236,7 @@ public class GlassScene extends Scene{
          addSidesBoxes();*/
         this.createGlass();
         this.loadSkybox();
-        this.initScreen();
+        //this.initScreen();
        //  initScreen();
         // this.loadHeadModel();
        //  this.loadQuad();
